@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/new/prefix1">
+        <file>images/compass-1.png</file>
+        <file>images/gauge-1.png</file>
+        <file>images/test-sw.jpg</file>
+        <file>images/Usb-64.png</file>
+    </qresource>
+</RCC>

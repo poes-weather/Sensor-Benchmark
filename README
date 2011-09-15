@@ -1,0 +1,79 @@
+    POES-Weather Ltd Sensor Benchmark, a software for testing different sensors used to align antennas.
+    Copyright (C) 2011 Free Software Foundation, Inc.
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+    Email: <postmaster@poes-weather.com>
+    Web: <http://www.poes-weather.com>
+------------------------------------------------------------------------------------------------------------
+
+Supported sensors/devices
+=========================
+- NMEA GPS
+- Pololu Jrk 12v12/21v3 USB Motor Controller with Feedback
+  http://www.pololu.com/catalog/product/1393
+- Ocean Server USB 3-Axis Digital Compass, OS5000-US
+  http://www.ocean-server.com/compass.html
+- Oak USB Sensor 3 Axes Tilt/Inclination (HID-device)
+  http://www.toradex.com/En/Products/USB_Sensors_and_Peripherals/Oak_USB_Sensors/3_Axes_Tilt_Inclination
+- DVB Receiver test
+- SI21xx Demodulator control via I2C
+
+Dependencies
+============
+kernel-devel kernel-headers
+libusb libusb-devel
+i2c-tools i2c-devel
+video4linux video4linux-devel
+dvb-tools
+
+/etc/udev/rules.d/
+==================
+99-pololu.rules
+#Jrk 12v12
+SUBSYSTEM=="usb", ATTRS{idVendor}=="1ffb", ATTRS{idProduct}=="0085", GROUP:="users", MODE:="0666"
+#Jrk 21v3
+SUBSYSTEM=="usb", ATTRS{idVendor}=="1ffb", ATTRS{idProduct}=="0083", GROUP:="users", MODE:="0666"
+
+99-benchmark.rules
+# relax permissions, rw to all, FIXME
+KERNEL=="ttyUSB[0-9]*", GROUP="uucp", MODE="0666"
+KERNEL=="ttyS[0-9]*", GROUP="uucp", MODE="0666"
+KERNEL=="ttyACM[0-9]*", GROUP="uucp", MODE="0666"
+KERNEL=="i2c-[0-9]*", GROUP="i2c", MODE="0666"
+  
+===========================================
+Use i2c-dev to access all adapter registers
+===========================================
+http://www.mjmwired.net/kernel/Documentation/i2c/dev-interface
+https://i2c.wiki.kernel.org/index.php/Main_Page
+
+yum install i2c-tools
+modprobe i2c-dev
+ls /dev -> should now show a list of all /dev/i2c-0...255 devices
+
+add to last in file /etc/rc.d/rc.local 
+/sbin/modprobe i2c-dev
+so it will detect all i2c-N ports
+
+=============
+i2cdetect -l
+=============
+i2c-0	i2c       	nouveau-0000:02:00.0-0          	I2C adapter
+i2c-1	i2c       	nouveau-0000:02:00.0-7          	I2C adapter
+i2c-2	i2c       	nouveau-0000:02:00.0-1          	I2C adapter
+i2c-3	smbus     	SMBus nForce2 adapter at 4d00   	SMBus adapter
+i2c-4	smbus     	SMBus nForce2 adapter at 4e00   	SMBus adapter
+i2c-5	i2c       	DVBWorld DVB-S 2102 USB2.0      	I2C adapter
+

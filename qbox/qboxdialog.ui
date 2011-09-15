@@ -1,0 +1,773 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>QboxDialog</class>
+ <widget class="QDialog" name="QboxDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>427</width>
+    <height>384</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>DVB - Test</string>
+  </property>
+  <widget class="QWidget" name="layoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>14</x>
+     <y>14</y>
+     <width>401</width>
+     <height>361</height>
+    </rect>
+   </property>
+   <layout class="QGridLayout" name="mainLayout">
+    <item row="0" column="0" colspan="2">
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="tab">
+       <attribute name="title">
+        <string>Frontend</string>
+       </attribute>
+       <widget class="QWidget" name="layoutWidget">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>10</y>
+          <width>371</width>
+          <height>141</height>
+         </rect>
+        </property>
+        <layout class="QGridLayout" name="gridLayout">
+         <item row="0" column="0">
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>Frontend</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1" colspan="2">
+          <widget class="QLineEdit" name="deviceEd">
+           <property name="text">
+            <string>/dev/dvb/adapter0/frontend0</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QPushButton" name="openBtn">
+           <property name="text">
+            <string>Open</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="2">
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="3" column="0" colspan="3">
+          <widget class="QLabel" name="frontendLabel">
+           <property name="font">
+            <font>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>TextLabel</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="tab_2">
+       <attribute name="title">
+        <string>Tune</string>
+       </attribute>
+       <widget class="QWidget" name="layoutWidget">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>391</width>
+          <height>221</height>
+         </rect>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_6">
+         <item row="0" column="0" colspan="2">
+          <widget class="QTabWidget" name="tabWidget_2">
+           <property name="currentIndex">
+            <number>0</number>
+           </property>
+           <widget class="QWidget" name="tab_5">
+            <attribute name="title">
+             <string>General</string>
+            </attribute>
+            <widget class="QWidget" name="layoutWidget">
+             <property name="geometry">
+              <rect>
+               <x>10</x>
+               <y>10</y>
+               <width>281</width>
+               <height>128</height>
+              </rect>
+             </property>
+             <layout class="QGridLayout" name="gridLayout_5">
+              <item row="2" column="0">
+               <widget class="QLabel" name="label_3">
+                <property name="text">
+                 <string>LNB Voltage</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="QComboBox" name="lnbVoltageCb">
+                <item>
+                 <property name="text">
+                  <string>13 Volts</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>18 Volts</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Off</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item row="3" column="0">
+               <widget class="QLabel" name="label_14">
+                <property name="text">
+                 <string>Pilot</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="1">
+               <widget class="QComboBox" name="pilotCb">
+                <property name="currentIndex">
+                 <number>1</number>
+                </property>
+                <item>
+                 <property name="text">
+                  <string>On</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Off</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Auto</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="label_12">
+                <property name="text">
+                 <string>System</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QComboBox" name="systemCb">
+                <property name="currentIndex">
+                 <number>0</number>
+                </property>
+                <item>
+                 <property name="text">
+                  <string>Undefined</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>DVB C Annex AC</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>DVB C Annex B</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>DVB T</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>DSS</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>DVB S</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>DVB S2</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>DVB H</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>ISDB T</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>ISDB S</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>ISDB C</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>ATS C</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>ATS CMH</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>DMB TH</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>CMMB</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>DAB</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_15">
+                <property name="text">
+                 <string>Frontend type</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QComboBox" name="fetypeCb">
+                <item>
+                 <property name="text">
+                  <string>QPSK</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>QAM</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>OFDM</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>ATSC</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </widget>
+           <widget class="QWidget" name="tab_4">
+            <attribute name="title">
+             <string>Modulation</string>
+            </attribute>
+            <widget class="QWidget" name="layoutWidget">
+             <property name="geometry">
+              <rect>
+               <x>11</x>
+               <y>10</y>
+               <width>281</width>
+               <height>123</height>
+              </rect>
+             </property>
+             <layout class="QGridLayout" name="gridLayout_4">
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_5">
+                <property name="text">
+                 <string>Modulation</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QComboBox" name="modulationCb">
+                <item>
+                 <property name="text">
+                  <string>QPSK</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>QAM 16</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>QAM 32</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>QAM 64</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>QAM 128</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>QAM Auto</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>VBS 8</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>VBS 16</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>PSK 8</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>APSK 16</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>APSK 32</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>DQPSK</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>BPSK</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="label_7">
+                <property name="text">
+                 <string>Viterbi puncturing</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QComboBox" name="fecCb">
+                <property name="currentIndex">
+                 <number>3</number>
+                </property>
+                <item>
+                 <property name="text">
+                  <string>None</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>1/2</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>2/3</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>3/4</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>4/5</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>5/6</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>6/7</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>7/8</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>8/9</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Auto</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>3/5</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>9/10</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QLabel" name="label_13">
+                <property name="text">
+                 <string>Roll-off</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="QComboBox" name="rolloffCb">
+                <item>
+                 <property name="text">
+                  <string>0.35</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>0.20 (DVB-S2)</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>0.25 (DVB-S2)</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Auto</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item row="3" column="0">
+               <widget class="QLabel" name="label_16">
+                <property name="text">
+                 <string>Reed Solomon</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="1">
+               <widget class="QCheckBox" name="checkBox">
+                <property name="text">
+                 <string>Bypass</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </widget>
+           <widget class="QWidget" name="tab_3">
+            <attribute name="title">
+             <string>Frequency</string>
+            </attribute>
+            <widget class="QWidget" name="layoutWidget">
+             <property name="geometry">
+              <rect>
+               <x>11</x>
+               <y>11</y>
+               <width>301</width>
+               <height>128</height>
+              </rect>
+             </property>
+             <layout class="QGridLayout" name="gridLayout_3">
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_2">
+                <property name="text">
+                 <string>Local oscillator [MHz]</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QDoubleSpinBox" name="loSpinBox">
+                <property name="decimals">
+                 <number>3</number>
+                </property>
+                <property name="maximum">
+                 <double>999999999.000000000000000</double>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="label_4">
+                <property name="text">
+                 <string>Frequency [Mhz]</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QDoubleSpinBox" name="freqSpinBox">
+                <property name="decimals">
+                 <number>3</number>
+                </property>
+                <property name="minimum">
+                 <double>925.000000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>2175.000000000000000</double>
+                </property>
+                <property name="value">
+                 <double>1700.400000000000091</double>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QLabel" name="label_6">
+                <property name="text">
+                 <string>Bandwidth [KHz]</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="QDoubleSpinBox" name="bandwidthSb">
+                <property name="decimals">
+                 <number>3</number>
+                </property>
+                <property name="minimum">
+                 <double>0.000000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>999999999.000000000000000</double>
+                </property>
+                <property name="value">
+                 <double>4000.000000000000000</double>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="0">
+               <widget class="QLabel" name="label_8">
+                <property name="text">
+                 <string>Symbolrate [Ksps]</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="1">
+               <widget class="QSpinBox" name="symbolrateSb">
+                <property name="minimum">
+                 <number>1</number>
+                </property>
+                <property name="maximum">
+                 <number>99999999</number>
+                </property>
+                <property name="value">
+                 <number>1331</number>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </widget>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <spacer name="horizontalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>198</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="1" column="1">
+          <widget class="QPushButton" name="tuneBtn">
+           <property name="text">
+            <string>Tune</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="tab_6">
+       <attribute name="title">
+        <string>Load/Record</string>
+       </attribute>
+       <widget class="QWidget" name="layoutWidget">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>10</y>
+          <width>321</width>
+          <height>95</height>
+         </rect>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_7">
+         <item row="0" column="0">
+          <widget class="QPushButton" name="loadsettingsBtn">
+           <property name="text">
+            <string>Load settings...</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <spacer name="horizontalSpacer_3">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="1" column="0">
+          <widget class="QPushButton" name="savesettingsBtn">
+           <property name="text">
+            <string>Save current settings...</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QPushButton" name="recBtn">
+           <property name="text">
+            <string>Record...</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+     </widget>
+    </item>
+    <item row="1" column="0">
+     <layout class="QGridLayout" name="gridLayout_2">
+      <property name="leftMargin">
+       <number>50</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>50</number>
+      </property>
+      <property name="bottomMargin">
+       <number>10</number>
+      </property>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_9">
+        <property name="text">
+         <string>Signal </string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QProgressBar" name="signalBar">
+        <property name="value">
+         <number>24</number>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_10">
+        <property name="text">
+         <string>SNR</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QProgressBar" name="snrBar">
+        <property name="value">
+         <number>24</number>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_11">
+        <property name="text">
+         <string>BER</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QLabel" name="berLabel">
+        <property name="text">
+         <string>berLabel</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

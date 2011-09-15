@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>437</width>
+    <height>564</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>POES-Weather Ltd Sensor Benchmark 2011</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="resource.qrc">
+    <normaloff>:/new/prefix1/images/Usb-64.png</normaloff>:/new/prefix1/images/Usb-64.png</iconset>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QWidget#centralWidget {
+background-color: rgb(0, 0, 0);
+background-image: url(:/new/prefix1/images/test-sw.jpg);
+background-position: center center;
+background-repeat:no-repeat;
+
+}</string>
+  </property>
+  <widget class="QWidget" name="centralWidget"/>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>437</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionExit"/>
+   </widget>
+   <widget class="QMenu" name="menuGPS">
+    <property name="title">
+     <string>Devices</string>
+    </property>
+    <widget class="QMenu" name="menuDVB">
+     <property name="title">
+      <string>DVB</string>
+     </property>
+     <addaction name="actionGeneral_DVB_S_S2"/>
+     <addaction name="actionSI21xx"/>
+    </widget>
+    <widget class="QMenu" name="menuPololu_Jrk_Motor_Control">
+     <property name="title">
+      <string>Pololu Jrk Motor Control</string>
+     </property>
+     <addaction name="actionACM_Control"/>
+     <addaction name="actionUSB_Contol"/>
+    </widget>
+    <addaction name="actionGPS"/>
+    <addaction name="menuPololu_Jrk_Motor_Control"/>
+    <addaction name="actionOcean_Server_Compass"/>
+    <addaction name="actionToradex_Inclinometer"/>
+    <addaction name="menuDVB"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuGPS"/>
+  </widget>
+  <widget class="QToolBar" name="mainToolBar">
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+  <action name="actionExit">
+   <property name="text">
+    <string>Exit</string>
+   </property>
+  </action>
+  <action name="actionGPS">
+   <property name="text">
+    <string>GPS</string>
+   </property>
+  </action>
+  <action name="actionToradex_Inclinometer">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Toradex Inclinometer</string>
+   </property>
+  </action>
+  <action name="actionOcean_Server_Compass">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Ocean Server Compass</string>
+   </property>
+  </action>
+  <action name="actionGeneral_DVB_S_S2">
+   <property name="text">
+    <string>General DVB-S/S2</string>
+   </property>
+  </action>
+  <action name="actionSI21xx">
+   <property name="text">
+    <string>SI21xx</string>
+   </property>
+  </action>
+  <action name="actionACM_Control">
+   <property name="text">
+    <string>ACM Control</string>
+   </property>
+  </action>
+  <action name="actionUSB_Contol">
+   <property name="text">
+    <string>USB Contol</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources>
+  <include location="resource.qrc"/>
+ </resources>
+ <connections/>
+</ui>
