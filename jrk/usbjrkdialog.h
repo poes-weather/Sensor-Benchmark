@@ -59,6 +59,10 @@ private slots:
     void on_pushButton_clicked();
     void on_gotodegBtn_clicked();
 
+    void on_calibrateMinFeedbackBtn_clicked();
+
+    void on_calibrateMaxFeedbackBtn_clicked();
+
 protected:
     void set_parameter_u8(unsigned char id, unsigned char value);
     void set_parameter_u16(unsigned char id, unsigned short value);

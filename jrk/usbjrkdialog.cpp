@@ -31,12 +31,14 @@
 #include "usbdevice.h"
 
 //---------------------------------------------------------------------------
-#define WF_INIT          1
-#define WF_NO_UPDATE     2
-#define WF_CALIBRATING   4
-#define WF_GOTO_MIN      8
-#define WF_GOTO_MAX     16
-#define WF_GOTO_DEG     32
+#define WF_INIT               1
+#define WF_NO_UPDATE          2
+#define WF_CALIBRATING        4
+#define WF_GOTO_MIN           8
+#define WF_GOTO_MAX          16
+#define WF_GOTO_DEG          32
+#define WF_CALIB_MIN_FB      64
+#define WF_CALIB_MAX_FB     128
 
 //---------------------------------------------------------------------------
 USBJrkDialog::USBJrkDialog(QWidget *parent) :
@@ -113,7 +115,9 @@ void USBJrkDialog::onJrkReadWrite(void)
     double delta;
     int target;
 
-    jrk->control_transfer(JRK_REQUEST_GET_TYPE, JRK_REQUEST_GET_VARIABLES, 0, 0, (char *)iobuffer, sizeof(jrk_variables_t));
+    if(!jrk->control_transfer(JRK_REQUEST_GET_TYPE, JRK_REQUEST_GET_VARIABLES, 0, 0, (char *)iobuffer, sizeof(jrk_variables_t)))
+        return;
+
     vars = *(jrk_variables *) iobuffer;
 
     str.sprintf("%d", vars.feedback);
@@ -122,7 +126,6 @@ void USBJrkDialog::onJrkReadWrite(void)
     ui->scaledfbLabel->setText(str);
 
     if(wFlags & (WF_GOTO_MIN | WF_GOTO_MAX)) {
-
         sb = wFlags & WF_GOTO_MIN ? ui->feedbackMinDegSb:ui->feedbackMaxDegSb;
         sb->setValue(vars.feedback);
 
@@ -152,6 +155,20 @@ void USBJrkDialog::onJrkReadWrite(void)
             ui->scaleddegreesLabel->setText(str);
 
             current_deg = degrees;
+        }
+
+        if(wFlags & WF_CALIB_MIN_FB) {
+            ui->feedbackMin->setValue(vars.scaledFeedback);
+            ui->feedbackDisconnectMin->setValue(vars.scaledFeedback / 2);
+
+            wFlags &= ~WF_CALIB_MIN_FB;
+        }
+
+        if(wFlags & WF_CALIB_MAX_FB) {
+            ui->feedbackMax->setValue(vars.scaledFeedback);
+            ui->feedbackDisconnectMin->setValue(vars.scaledFeedback + (4095 - vars.scaledFeedback) / 2);
+
+            wFlags &= ~WF_CALIB_MAX_FB;
         }
 
         if(wFlags & WF_GOTO_DEG) {
@@ -453,6 +470,20 @@ void USBJrkDialog::on_gotodegBtn_clicked()
     }
 
     ui->targetSlider->setEnabled(wFlags & WF_GOTO_DEG ? false:true);
+}
+
+//---------------------------------------------------------------------------
+void USBJrkDialog::on_calibrateMinFeedbackBtn_clicked()
+{
+    if(jrk)
+        wFlags |= WF_CALIB_MIN_FB;
+}
+
+//---------------------------------------------------------------------------
+void USBJrkDialog::on_calibrateMaxFeedbackBtn_clicked()
+{
+    if(jrk)
+        wFlags |= WF_CALIB_MAX_FB;
 }
 
 //---------------------------------------------------------------------------
