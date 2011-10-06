@@ -97,7 +97,7 @@ typedef struct jrk_variables_t
 #define JRK_PARAMETER_PID_INTEGRAL_LIMIT                81 // 2 byte unsigned value
 #define JRK_PARAMETER_PID_RESET_INTEGRAL                84 // 1 bit boolean value
 
-#define JRK_PARAMETER_MOTOR_PWM_FREQUENCY               100 // 1 byte unsigned value.  Valid values are MOTOR_PWM_FREQUENCY.  Init parameter.
+#define JRK_PARAMETER_MOTOR_PWM_FREQUENCY               100 // 1 byte unsigned value.  Valid values are 0 = 20kHz, 1 = 5kHz.  Init parameter.
 #define JRK_PARAMETER_MOTOR_INVERT                      101 // 1 bit boolean value
 
 // WARNING: The EEPROM initialization assumes the 5 parameters below are consecutive!

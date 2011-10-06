@@ -140,9 +140,11 @@ bool TUSBDevice::control_write(int requesttype, int request, int value, int inde
 //---------------------------------------------------------------------------
 unsigned char TUSBDevice::control_read_u8(int requesttype, int request, int value, int index)
 {
+    unsigned char byte;
     unsigned char rc = 0x00;
 
-    control_transfer(requesttype, request, value, index, (char *) &rc, 1);
+    if(control_transfer(requesttype, request, value, index, (char *) &byte, 1))
+        rc = byte;
 
     qDebug("control_read_u8: 0x%02x [%s:%d]", rc, __FILE__, __LINE__);
 
@@ -152,7 +154,7 @@ unsigned char TUSBDevice::control_read_u8(int requesttype, int request, int valu
 //---------------------------------------------------------------------------
 unsigned short TUSBDevice::control_read_u16(int requesttype, int request, int value, int index)
 {
-    unsigned char bytes[3];
+    unsigned char bytes[2];
     unsigned short rc = 0x0000;
 
     if(control_transfer(requesttype, request, value, index, (char *)bytes, 2))
@@ -162,9 +164,6 @@ unsigned short TUSBDevice::control_read_u16(int requesttype, int request, int va
 
     return rc;
 }
-
-
-
 
 //---------------------------------------------------------------------------
 QString TUSBDevice::manufacturer(void)

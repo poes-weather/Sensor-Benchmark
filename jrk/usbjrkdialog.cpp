@@ -40,6 +40,7 @@
 #define WF_CALIB_MIN_FB      64
 #define WF_CALIB_MAX_FB     128
 
+#define RINT(x) (floor(x) + 0.5)
 //---------------------------------------------------------------------------
 USBJrkDialog::USBJrkDialog(QWidget *parent) :
     QDialog(parent),
@@ -48,10 +49,12 @@ USBJrkDialog::USBJrkDialog(QWidget *parent) :
     ui->setupUi(this);
     setLayout(ui->mainLayout);
 
+#if 0
     ui->targetLabel->setText("");
     ui->degreesLabel->setText("");
     ui->feedbackLabel->setText("");
     ui->scaleddegreesLabel->setText("");
+#endif
 
     ui->degSb->setVisible(false);
     ui->pushButton->setVisible(false);
@@ -76,8 +79,8 @@ USBJrkDialog::USBJrkDialog(QWidget *parent) :
 
     iobuffer = (unsigned char *) malloc(JRK_IO_BUF_SIZE);
     usb = new TUSB();
-    on_refreshBtn_clicked();
 
+    on_refreshBtn_clicked();
 }
 
 //---------------------------------------------------------------------------
@@ -166,7 +169,7 @@ void USBJrkDialog::onJrkReadWrite(void)
 
         if(wFlags & WF_CALIB_MAX_FB) {
             ui->feedbackMax->setValue(vars.scaledFeedback);
-            ui->feedbackDisconnectMin->setValue(vars.scaledFeedback + (4095 - vars.scaledFeedback) / 2);
+            ui->feedbackDisconnectMax->setValue(vars.scaledFeedback + (4095 - vars.scaledFeedback) / 2);
 
             wFlags &= ~WF_CALIB_MAX_FB;
         }
@@ -220,15 +223,22 @@ void USBJrkDialog::on_refreshBtn_clicked()
         return;
     }
 
-    // read feedback parameters
-    // controlTransfer(byte RequestType, byte Request, ushort Value, ushort Index, byte[] data)
     QString str;
-    unsigned char u8;
+    unsigned char u8, u8_2;
     unsigned short u16;
 
-    u8 = jrk->control_read_u16(JRK_REQUEST_GET_TYPE, JRK_REQUEST_GET_PARAMETER, 0, JRK_PARAMETER_FEEDBACK_INVERT);
-    ui->feedbackInvertedCb->setChecked(u8 & 1 ? true:false);
+    // read feedback parameters
+    qDebug("read feedback parameters");
 
+    u8 = jrk->control_read_u8(JRK_REQUEST_GET_TYPE, JRK_REQUEST_GET_PARAMETER, 0, JRK_PARAMETER_FEEDBACK_MODE);
+    ui->feedbackTypeCb->setCurrentIndex(u8);
+    u8 = jrk->control_read_u8(JRK_REQUEST_GET_TYPE, JRK_REQUEST_GET_PARAMETER, 0, JRK_PARAMETER_FEEDBACK_POWER_WITH_AUX);
+    ui->auxdisconnectCb->setChecked(u8 & 1 ? true:false);
+    // 1 byte unsigned value, 0-8 - averages together 4 * 2^x samples
+    u8 = jrk->control_read_u8(JRK_REQUEST_GET_TYPE, JRK_REQUEST_GET_PARAMETER, 0, JRK_PARAMETER_FEEDBACK_ANALOG_SAMPLES_EXPONENT);
+    ui->adcSamplesCb->setCurrentIndex(u8);
+    u8 = jrk->control_read_u8(JRK_REQUEST_GET_TYPE, JRK_REQUEST_GET_PARAMETER, 0, JRK_PARAMETER_FEEDBACK_INVERT);
+    ui->feedbackInvertedCb->setChecked(u8 & 1 ? true:false);
     u16 = jrk->control_read_u16(JRK_REQUEST_GET_TYPE, JRK_REQUEST_GET_PARAMETER, 0, JRK_PARAMETER_FEEDBACK_MINIMUM);
     ui->feedbackMin->setValue(u16);
     u16 = jrk->control_read_u16(JRK_REQUEST_GET_TYPE, JRK_REQUEST_GET_PARAMETER, 0, JRK_PARAMETER_FEEDBACK_MAXIMUM);
@@ -238,6 +248,54 @@ void USBJrkDialog::on_refreshBtn_clicked()
     u16 = jrk->control_read_u16(JRK_REQUEST_GET_TYPE, JRK_REQUEST_GET_PARAMETER, 0, JRK_PARAMETER_FEEDBACK_DISCONNECT_MAXIMUM);
     ui->feedbackDisconnectMax->setValue(u16);
 
+    // read motor parameters
+    qDebug("read motor parameters");
+
+    u8 = jrk->control_read_u8(JRK_REQUEST_GET_TYPE, JRK_REQUEST_GET_PARAMETER, 0, JRK_PARAMETER_SERIAL_DEVICE_NUMBER);
+    ui->motorIdSb->setValue(u8);
+    u8 = jrk->control_read_u8(JRK_REQUEST_GET_TYPE, JRK_REQUEST_GET_PARAMETER, 0, JRK_PARAMETER_MOTOR_PWM_FREQUENCY);
+    ui->pwmCB->setCurrentIndex(u8);
+    u8 = jrk->control_read_u8(JRK_REQUEST_GET_TYPE, JRK_REQUEST_GET_PARAMETER, 0, JRK_PARAMETER_MOTOR_INVERT);
+    ui->motorInvertCb->setChecked(u8 & 1 ? true:false);
+
+    u16 = jrk->control_read_u16(JRK_REQUEST_GET_TYPE, JRK_REQUEST_GET_PARAMETER, 0, JRK_PARAMETER_MOTOR_MAX_DUTY_CYCLE_FORWARD);
+    ui->motorMaxDutyCycleSb->setValue(u16);
+    u16 = jrk->control_read_u16(JRK_REQUEST_GET_TYPE, JRK_REQUEST_GET_PARAMETER, 0, JRK_PARAMETER_MOTOR_MAX_ACCELERATION_FORWARD);
+    ui->motorMaxAccelerationSb->setValue(u16);
+    u8 = jrk->control_read_u8(JRK_REQUEST_GET_TYPE, JRK_REQUEST_GET_PARAMETER, 0, JRK_PARAMETER_MOTOR_BRAKE_DURATION_FORWARD);
+    ui->motorBrakeDurationSb->setValue(u8 * 5);
+
+    u8 = jrk->control_read_u8(JRK_REQUEST_GET_TYPE, JRK_REQUEST_GET_PARAMETER, 0, JRK_PARAMETER_MOTOR_MAX_CURRENT_FORWARD);
+    u8_2 = jrk->control_read_u8(JRK_REQUEST_GET_TYPE, JRK_REQUEST_GET_PARAMETER, 0, JRK_PARAMETER_MOTOR_CURRENT_CALIBRATION_FORWARD);
+    ui->motorMaxCurrentSb->setValue(u8*u8_2 / 1000.0);
+    ui->motorCurrentCalibSb->setValue(u8_2);
+
+    // read PID parameters
+    qDebug("read PID parameters");
+
+    u16 = jrk->control_read_u16(JRK_REQUEST_GET_TYPE, JRK_REQUEST_GET_PARAMETER, 0, JRK_PARAMETER_PROPORTIONAL_MULTIPLIER);
+    ui->pidPropMultSb->setValue(u16);
+    u8 = jrk->control_read_u8(JRK_REQUEST_GET_TYPE, JRK_REQUEST_GET_PARAMETER, 0, JRK_PARAMETER_PROPORTIONAL_EXPONENT);
+    ui->pidPropExpSb->setValue(u8);
+
+    u16 = jrk->control_read_u16(JRK_REQUEST_GET_TYPE, JRK_REQUEST_GET_PARAMETER, 0, JRK_PARAMETER_INTEGRAL_MULTIPLIER);
+    ui->pidIntMultSb->setValue(u16);
+    u8 = jrk->control_read_u8(JRK_REQUEST_GET_TYPE, JRK_REQUEST_GET_PARAMETER, 0, JRK_PARAMETER_INTEGRAL_EXPONENT);
+    ui->pidIntExpSb->setValue(u8);
+
+    u16 = jrk->control_read_u16(JRK_REQUEST_GET_TYPE, JRK_REQUEST_GET_PARAMETER, 0, JRK_PARAMETER_DERIVATIVE_MULTIPLIER);
+    ui->pidDerMultSb->setValue(u16);
+    u8 = jrk->control_read_u8(JRK_REQUEST_GET_TYPE, JRK_REQUEST_GET_PARAMETER, 0, JRK_PARAMETER_DERIVATIVE_EXPONENT);
+    ui->pidDerExpSb->setValue(u8);
+
+    u16 = jrk->control_read_u16(JRK_REQUEST_GET_TYPE, JRK_REQUEST_GET_PARAMETER, 0, JRK_PARAMETER_PID_PERIOD);
+    ui->pidPeriodSb->setValue(u16);
+    u16 = jrk->control_read_u16(JRK_REQUEST_GET_TYPE, JRK_REQUEST_GET_PARAMETER, 0, JRK_PARAMETER_PID_INTEGRAL_LIMIT);
+    ui->pidIntegralLimitSb->setValue(u16);
+    u8 = jrk->control_read_u8(JRK_REQUEST_GET_TYPE, JRK_REQUEST_GET_PARAMETER, 0, JRK_PARAMETER_PID_RESET_INTEGRAL);
+    ui->pidResetIntegralCb->setChecked(u8 & 1 ? true:false);
+
+    // set target slider etc
     jrk->control_transfer(JRK_REQUEST_GET_TYPE, JRK_REQUEST_GET_VARIABLES, 0, 0, (char *)iobuffer, sizeof(jrk_variables_t));
     vars = *(jrk_variables *) iobuffer;
 
@@ -246,11 +304,12 @@ void USBJrkDialog::on_refreshBtn_clicked()
 
     ui->targetSlider->setValue(vars.target);
 
-    // qDebug("size: %d", sizeof(jrk_variables_t));
-
-    //jrk->control_write(JRK_REQUEST_GET_TYPE, JRK_REQUEST_MOTOR_OFF, 0, 0);
-
     wFlags &= ~WF_INIT;
+
+
+    calcProportional();
+    calcIntegral();
+    calcDerivative();
 
     jrk_timer->start();
 }
@@ -258,19 +317,17 @@ void USBJrkDialog::on_refreshBtn_clicked()
 //---------------------------------------------------------------------------
 void USBJrkDialog::on_targetSlider_valueChanged(int value)
 {
-    if(!jrk || wFlags & WF_INIT)
-        return;
-
-    if(value < 0 || value > 4095 || value == vars.target)
+    if(!jrk || value < 0 || value > 4095)
         return;
 
     QString str;
     str.sprintf("%d", value);
-    ui->targetLabel->setText(str);
+    ui->targetSlider->setToolTip(str);
 
     wFlags |= WF_NO_UPDATE;
 
-    jrk->control_write(JRK_REQUEST_SET_TYPE, JRK_REQUEST_SET_TARGET, value, 0);
+    if(!(wFlags & WF_INIT))
+        jrk->control_write(JRK_REQUEST_SET_TYPE, JRK_REQUEST_SET_TARGET, value, 0);
 
     wFlags &= ~WF_NO_UPDATE;
 }
@@ -487,3 +544,150 @@ void USBJrkDialog::on_calibrateMaxFeedbackBtn_clicked()
 }
 
 //---------------------------------------------------------------------------
+void USBJrkDialog::on_motorCurrentCalibSb_valueChanged(int arg1)
+{
+    if(wFlags & WF_INIT)
+        return;
+
+    int maxA = RINT(ui->motorMaxCurrentSb->value() * 1000.0 / arg1);
+    double A = maxA * arg1 / 1000.0;
+
+    ui->motorMaxCurrentSb->setValue(A);
+}
+
+//---------------------------------------------------------------------------
+void USBJrkDialog::on_applyMotorBtn_clicked()
+{
+    if(!jrk)
+        return;
+
+    wFlags |= WF_NO_UPDATE;
+
+    unsigned char u8;
+
+    set_parameter_u8(JRK_PARAMETER_SERIAL_DEVICE_NUMBER, ui->motorIdSb->value());
+    set_parameter_u8(JRK_PARAMETER_MOTOR_PWM_FREQUENCY, ui->pwmCB->currentIndex());
+    set_parameter_u8(JRK_PARAMETER_MOTOR_INVERT, ui->motorInvertCb->isChecked() ? 1:0);
+
+    set_parameter_u16(JRK_PARAMETER_MOTOR_MAX_DUTY_CYCLE_FORWARD, ui->motorMaxDutyCycleSb->value());
+    set_parameter_u16(JRK_PARAMETER_MOTOR_MAX_DUTY_CYCLE_REVERSE, ui->motorMaxDutyCycleSb->value());
+
+    set_parameter_u16(JRK_PARAMETER_MOTOR_MAX_ACCELERATION_FORWARD, ui->motorMaxAccelerationSb->value());
+    set_parameter_u16(JRK_PARAMETER_MOTOR_MAX_ACCELERATION_REVERSE, ui->motorMaxAccelerationSb->value());
+
+    set_parameter_u8(JRK_PARAMETER_MOTOR_BRAKE_DURATION_FORWARD, ui->motorBrakeDurationSb->value() / 5);
+    set_parameter_u8(JRK_PARAMETER_MOTOR_BRAKE_DURATION_REVERSE, ui->motorBrakeDurationSb->value() / 5);
+
+    u8 = (unsigned char) RINT(ui->motorMaxCurrentSb->value() * 1000.0 / ui->motorCurrentCalibSb->value());
+    set_parameter_u8(JRK_PARAMETER_MOTOR_MAX_CURRENT_FORWARD, u8);
+    set_parameter_u8(JRK_PARAMETER_MOTOR_MAX_CURRENT_REVERSE, u8);
+
+    set_parameter_u8(JRK_PARAMETER_MOTOR_CURRENT_CALIBRATION_FORWARD, ui->motorCurrentCalibSb->value());
+    set_parameter_u8(JRK_PARAMETER_MOTOR_CURRENT_CALIBRATION_REVERSE, ui->motorCurrentCalibSb->value());
+
+    ui->motorMaxCurrentSb->setValue(u8 * ui->motorCurrentCalibSb->value() / 1000.0);
+
+    jrk->control_write(JRK_REQUEST_SET_TYPE, JRK_REQUEST_REINITIALIZE, 0, 0);
+
+    wFlags &= ~WF_NO_UPDATE;
+}
+
+//---------------------------------------------------------------------------
+// see http://en.wikipedia.org/wiki/PID_controller
+void USBJrkDialog::on_applyPIDBtn_clicked()
+{
+    if(!jrk)
+        return;
+
+    wFlags |= WF_NO_UPDATE;
+
+    set_parameter_u16(JRK_PARAMETER_PROPORTIONAL_MULTIPLIER, ui->pidPropMultSb->value());
+    set_parameter_u8(JRK_PARAMETER_PROPORTIONAL_EXPONENT, ui->pidPropExpSb->value());
+    set_parameter_u16(JRK_PARAMETER_INTEGRAL_MULTIPLIER, ui->pidIntMultSb->value());
+    set_parameter_u8(JRK_PARAMETER_INTEGRAL_EXPONENT, ui->pidPropExpSb->value());
+    set_parameter_u16(JRK_PARAMETER_DERIVATIVE_MULTIPLIER, ui->pidDerMultSb->value());
+    set_parameter_u8(JRK_PARAMETER_DERIVATIVE_EXPONENT, ui->pidDerExpSb->value());
+
+    set_parameter_u16(JRK_PARAMETER_PID_PERIOD, ui->pidPeriodSb->value());
+    set_parameter_u16(JRK_PARAMETER_PID_INTEGRAL_LIMIT, ui->pidIntegralLimitSb->value());
+    set_parameter_u8(JRK_PARAMETER_PID_RESET_INTEGRAL, ui->pidResetIntegralCb->isChecked() ? 1:0);
+
+    jrk->control_write(JRK_REQUEST_SET_TYPE, JRK_REQUEST_REINITIALIZE, 0, 0);
+
+    wFlags &= ~WF_NO_UPDATE;
+}
+
+//---------------------------------------------------------------------------
+void USBJrkDialog::on_pidPropMultSb_valueChanged(int /* arg1 */)
+{
+}
+
+//---------------------------------------------------------------------------
+void USBJrkDialog::on_pidPropExpSb_valueChanged(int /* arg1 */)
+{
+    calcProportional();
+}
+
+//---------------------------------------------------------------------------
+void USBJrkDialog::calcProportional(void)
+{
+    if(!jrk || (wFlags & WF_INIT))
+        return;
+
+    QString str;
+
+    str.sprintf("%.5f", ((double) ui->pidPropMultSb->value()) / ((double) (1 << ui->pidPropExpSb->value())));
+    ui->pidPropLabel->setText(str);
+}
+
+//---------------------------------------------------------------------------
+void USBJrkDialog::on_pidIntMultSb_valueChanged(int /* arg1 */)
+{
+    calcIntegral();
+}
+
+//---------------------------------------------------------------------------
+void USBJrkDialog::on_pidIntExpSb_valueChanged(int /* arg1 */)
+{
+    calcIntegral();
+}
+
+//---------------------------------------------------------------------------
+void USBJrkDialog::calcIntegral(void)
+{
+    if(!jrk || (wFlags & WF_INIT))
+        return;
+
+    QString str;
+
+    str.sprintf("%.5f", ((double) ui->pidIntMultSb->value()) / ((double) (1 << ui->pidIntExpSb->value())));
+    ui->pidIntLabel->setText(str);
+}
+
+//---------------------------------------------------------------------------
+void USBJrkDialog::on_pidDerMultSb_valueChanged(int /* arg1 */)
+{
+    calcDerivative();
+}
+
+//---------------------------------------------------------------------------
+void USBJrkDialog::on_pidDerExpSb_valueChanged(int /* arg1 */)
+{
+    calcDerivative();
+}
+
+//---------------------------------------------------------------------------
+void USBJrkDialog::calcDerivative(void)
+{
+    if(!jrk || (wFlags & WF_INIT))
+        return;
+
+    QString str;
+
+    str.sprintf("%.5f", ((double) ui->pidDerMultSb->value()) / ((double) (1 << ui->pidDerExpSb->value())));
+    ui->pidDerLabel->setText(str);
+}
+
+//---------------------------------------------------------------------------
+
+

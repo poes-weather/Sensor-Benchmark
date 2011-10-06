@@ -60,12 +60,23 @@ private slots:
     void on_gotodegBtn_clicked();
 
     void on_calibrateMinFeedbackBtn_clicked();
-
     void on_calibrateMaxFeedbackBtn_clicked();
+    void on_motorCurrentCalibSb_valueChanged(int arg1);
+    void on_applyMotorBtn_clicked();
+    void on_applyPIDBtn_clicked();
+    void on_pidPropMultSb_valueChanged(int arg1);
+    void on_pidPropExpSb_valueChanged(int arg1);
+    void on_pidIntMultSb_valueChanged(int arg1);
+    void on_pidIntExpSb_valueChanged(int arg1);
+    void on_pidDerMultSb_valueChanged(int arg1);
+    void on_pidDerExpSb_valueChanged(int arg1);
 
 protected:
     void set_parameter_u8(unsigned char id, unsigned char value);
     void set_parameter_u16(unsigned char id, unsigned short value);
+    void calcProportional(void);
+    void calcIntegral(void);
+    void calcDerivative(void);
 
 
 private:

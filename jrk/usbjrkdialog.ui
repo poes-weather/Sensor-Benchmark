@@ -6,20 +6,20 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>644</width>
-    <height>488</height>
+    <width>659</width>
+    <height>665</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>USB Jrk Motor Contol</string>
   </property>
-  <widget class="QWidget" name="layoutWidget">
+  <widget class="QWidget" name="">
    <property name="geometry">
     <rect>
-     <x>30</x>
-     <y>20</y>
-     <width>606</width>
-     <height>448</height>
+     <x>10</x>
+     <y>10</y>
+     <width>631</width>
+     <height>632</height>
     </rect>
    </property>
    <layout class="QGridLayout" name="mainLayout">
@@ -27,7 +27,7 @@
      <enum>QLayout::SetFixedSize</enum>
     </property>
     <property name="leftMargin">
-     <number>10</number>
+     <number>5</number>
     </property>
     <property name="topMargin">
      <number>10</number>
@@ -36,7 +36,7 @@
      <number>5</number>
     </property>
     <property name="bottomMargin">
-     <number>5</number>
+     <number>10</number>
     </property>
     <item row="0" column="0">
      <widget class="QComboBox" name="devicesCB">
@@ -55,12 +55,224 @@
       </property>
      </widget>
     </item>
-    <item row="1" column="0" colspan="2">
+    <item row="1" column="0">
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_6">
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Set Target</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0" colspan="3">
+       <widget class="QSlider" name="targetSlider">
+        <property name="minimumSize">
+         <size>
+          <width>321</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximum">
+         <number>4095</number>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="tickPosition">
+         <enum>QSlider::TicksBothSides</enum>
+        </property>
+        <property name="tickInterval">
+         <number>128</number>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QLabel" name="label_14">
+        <property name="text">
+         <string>Sensor</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="2">
+       <widget class="QLabel" name="label_8">
+        <property name="text">
+         <string>Degrees</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="label_5">
+        <property name="text">
+         <string>Feedback</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QLabel" name="feedbackLabel">
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>0</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="2">
+       <widget class="QLabel" name="degreesLabel">
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>0</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="label_10">
+        <property name="text">
+         <string>Scaled</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QLabel" name="scaledfbLabel">
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>0</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="2">
+       <widget class="QLabel" name="scaleddegreesLabel">
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>0</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="3">
+       <widget class="QDoubleSpinBox" name="degSb">
+        <property name="decimals">
+         <number>4</number>
+        </property>
+        <property name="maximum">
+         <double>360.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="QLabel" name="label_15">
+        <property name="text">
+         <string>Track</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="2">
+       <widget class="QDoubleSpinBox" name="gotoDegSb">
+        <property name="decimals">
+         <number>1</number>
+        </property>
+        <property name="maximum">
+         <double>360.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="0">
+       <widget class="QLabel" name="label_16">
+        <property name="text">
+         <string>Accuracy</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="2">
+       <widget class="QComboBox" name="accCb">
+        <item>
+         <property name="text">
+          <string>1</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>0.1</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>0.01</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>0.001</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="6" column="3">
+       <widget class="QPushButton" name="gotodegBtn">
+        <property name="text">
+         <string>Start</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="3">
+       <widget class="QPushButton" name="stopBtn">
+        <property name="text">
+         <string>Stop</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="3" column="0" colspan="2">
      <widget class="QTabWidget" name="tabWidget">
       <property name="minimumSize">
        <size>
-        <width>581</width>
-        <height>400</height>
+        <width>611</width>
+        <height>351</height>
        </size>
       </property>
       <property name="currentIndex">
@@ -70,24 +282,43 @@
        <attribute name="title">
         <string>Feedback</string>
        </attribute>
-       <widget class="QWidget" name="layoutWidget">
+       <widget class="QWidget" name="">
         <property name="geometry">
          <rect>
-          <x>10</x>
-          <y>10</y>
-          <width>556</width>
-          <height>338</height>
+          <x>11</x>
+          <y>11</y>
+          <width>491</width>
+          <height>217</height>
          </rect>
         </property>
-        <layout class="QGridLayout" name="gridLayout">
+        <layout class="QGridLayout" name="gridLayout_4">
          <item row="0" column="0">
-          <widget class="QCheckBox" name="feedbackInvertedCb">
+          <widget class="QLabel" name="label_28">
            <property name="text">
-            <string>Inverted</string>
+            <string>Type</string>
            </property>
           </widget>
          </item>
          <item row="0" column="1">
+          <widget class="QComboBox" name="feedbackTypeCb">
+           <item>
+            <property name="text">
+             <string>None</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Analogue</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Digital</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="2" column="1">
           <widget class="QLabel" name="label">
            <property name="text">
             <string>Minimum</string>
@@ -97,7 +328,7 @@
            </property>
           </widget>
          </item>
-         <item row="0" column="2">
+         <item row="2" column="2">
           <widget class="QLabel" name="label_2">
            <property name="text">
             <string>Maximum</string>
@@ -107,363 +338,158 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="0">
+         <item row="3" column="0">
           <widget class="QLabel" name="label_7">
            <property name="text">
             <string>Feedback</string>
            </property>
           </widget>
          </item>
-         <item row="1" column="1">
+         <item row="3" column="1">
           <widget class="QSpinBox" name="feedbackMin">
            <property name="maximum">
             <number>4095</number>
            </property>
           </widget>
          </item>
-         <item row="1" column="2">
+         <item row="3" column="2">
           <widget class="QSpinBox" name="feedbackMax">
            <property name="maximum">
             <number>4095</number>
            </property>
           </widget>
          </item>
-         <item row="2" column="0">
+         <item row="4" column="0">
           <widget class="QLabel" name="label_3">
            <property name="text">
             <string>Disconnect</string>
            </property>
           </widget>
          </item>
-         <item row="2" column="1">
+         <item row="4" column="1">
           <widget class="QSpinBox" name="feedbackDisconnectMin">
            <property name="maximum">
             <number>4095</number>
            </property>
           </widget>
          </item>
-         <item row="2" column="2">
+         <item row="4" column="2">
           <widget class="QSpinBox" name="feedbackDisconnectMax">
            <property name="maximum">
             <number>4095</number>
            </property>
           </widget>
          </item>
-         <item row="4" column="0">
-          <spacer name="verticalSpacer">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>40</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item row="6" column="0">
-          <widget class="QLabel" name="label_6">
-           <property name="font">
-            <font>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>Set Target</string>
-           </property>
-          </widget>
-         </item>
-         <item row="7" column="0" colspan="3">
-          <widget class="QSlider" name="targetSlider">
-           <property name="minimumSize">
-            <size>
-             <width>321</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="maximum">
-            <number>4095</number>
-           </property>
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="tickPosition">
-            <enum>QSlider::TicksBothSides</enum>
-           </property>
-           <property name="tickInterval">
-            <number>128</number>
-           </property>
-          </widget>
-         </item>
-         <item row="7" column="3">
-          <widget class="QLabel" name="targetLabel">
-           <property name="font">
-            <font>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>0</string>
-           </property>
-          </widget>
-         </item>
-         <item row="9" column="0">
-          <widget class="QLabel" name="label_5">
-           <property name="text">
-            <string>Feedback</string>
-           </property>
-          </widget>
-         </item>
-         <item row="9" column="1">
-          <widget class="QLabel" name="feedbackLabel">
-           <property name="font">
-            <font>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>0</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item row="7" column="4">
-          <widget class="QPushButton" name="stopBtn">
-           <property name="text">
-            <string>Stop</string>
-           </property>
-          </widget>
-         </item>
-         <item row="10" column="0">
-          <widget class="QLabel" name="label_10">
-           <property name="text">
-            <string>Scaled</string>
-           </property>
-          </widget>
-         </item>
-         <item row="10" column="1">
-          <widget class="QLabel" name="scaledfbLabel">
-           <property name="font">
-            <font>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>0</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item row="8" column="2">
-          <widget class="QLabel" name="label_8">
-           <property name="text">
-            <string>Degrees</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item row="9" column="2">
-          <widget class="QLabel" name="degreesLabel">
-           <property name="font">
-            <font>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>0</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item row="10" column="2">
-          <widget class="QLabel" name="scaleddegreesLabel">
-           <property name="font">
-            <font>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>0</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item row="12" column="2">
-          <widget class="QDoubleSpinBox" name="gotoDegSb">
-           <property name="decimals">
-            <number>4</number>
-           </property>
-           <property name="maximum">
-            <double>360.000000000000000</double>
-           </property>
-           <property name="singleStep">
-            <double>0.100000000000000</double>
-           </property>
-          </widget>
-         </item>
-         <item row="8" column="1">
-          <widget class="QLabel" name="label_14">
-           <property name="text">
-            <string>Sensor</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item row="12" column="0">
-          <widget class="QLabel" name="label_15">
-           <property name="text">
-            <string>Track</string>
-           </property>
-          </widget>
-         </item>
-         <item row="13" column="0">
-          <widget class="QLabel" name="label_16">
-           <property name="text">
-            <string>Accuracy</string>
-           </property>
-          </widget>
-         </item>
-         <item row="13" column="2">
-          <widget class="QComboBox" name="accCb">
-           <item>
-            <property name="text">
-             <string>1</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>0.1</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>0.01</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>0.001</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>0.0001</string>
-            </property>
-           </item>
-          </widget>
-         </item>
-         <item row="11" column="0">
-          <spacer name="verticalSpacer_2">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>100</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item row="13" column="3">
-          <widget class="QPushButton" name="gotodegBtn">
-           <property name="text">
-            <string>Start</string>
-           </property>
-          </widget>
-         </item>
-         <item row="10" column="3">
-          <widget class="QDoubleSpinBox" name="degSb">
-           <property name="decimals">
-            <number>4</number>
-           </property>
-           <property name="maximum">
-            <double>360.000000000000000</double>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="0">
+         <item row="5" column="0">
           <widget class="QLabel" name="label_17">
            <property name="text">
             <string>Calibrate</string>
            </property>
           </widget>
          </item>
-         <item row="3" column="1">
+         <item row="5" column="1">
           <widget class="QPushButton" name="calibrateMinFeedbackBtn">
            <property name="text">
-            <string>Read</string>
+            <string>Read Min</string>
            </property>
           </widget>
          </item>
-         <item row="3" column="2">
+         <item row="5" column="2">
           <widget class="QPushButton" name="calibrateMaxFeedbackBtn">
            <property name="text">
-            <string>Read</string>
+            <string>Read Max</string>
            </property>
           </widget>
          </item>
-         <item row="3" column="4">
+         <item row="5" column="3">
           <widget class="QPushButton" name="applyFeedbackBtn">
            <property name="text">
             <string>Write to Jrk</string>
            </property>
           </widget>
          </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_29">
+           <property name="text">
+            <string>ADC Samples</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QComboBox" name="adcSamplesCb">
+           <item>
+            <property name="text">
+             <string>4</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>8</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>16</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>32</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>64</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>128</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>256</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>512</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>1024</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QCheckBox" name="feedbackInvertedCb">
+           <property name="text">
+            <string>Inverted</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2" colspan="2">
+          <widget class="QCheckBox" name="auxdisconnectCb">
+           <property name="text">
+            <string>Detect AUX disconnect</string>
+           </property>
+          </widget>
+         </item>
         </layout>
-       </widget>
-      </widget>
-      <widget class="QWidget" name="tab_2">
-       <attribute name="title">
-        <string>Motor</string>
-       </attribute>
-      </widget>
-      <widget class="QWidget" name="tab_3">
-       <attribute name="title">
-        <string>Status</string>
-       </attribute>
-       <widget class="QPushButton" name="clrerrorsBtn">
-        <property name="geometry">
-         <rect>
-          <x>430</x>
-          <y>10</y>
-          <width>98</width>
-          <height>27</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Clear errors</string>
-        </property>
        </widget>
       </widget>
       <widget class="QWidget" name="tab_4">
        <attribute name="title">
-        <string>Degrees Calibration</string>
+        <string>Degrees</string>
        </attribute>
        <widget class="QWidget" name="layoutWidget">
         <property name="geometry">
          <rect>
-          <x>50</x>
-          <y>20</y>
+          <x>10</x>
+          <y>10</y>
           <width>421</width>
           <height>151</height>
          </rect>
@@ -604,6 +630,444 @@
         </layout>
        </widget>
       </widget>
+      <widget class="QWidget" name="tab_2">
+       <attribute name="title">
+        <string>Motor</string>
+       </attribute>
+       <widget class="QWidget" name="">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>10</y>
+          <width>481</width>
+          <height>227</height>
+         </rect>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_3">
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_18">
+           <property name="text">
+            <string>ID</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QSpinBox" name="motorIdSb">
+           <property name="maximum">
+            <number>127</number>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_19">
+           <property name="text">
+            <string>PWM Frequency</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QComboBox" name="pwmCB">
+           <item>
+            <property name="text">
+             <string>20 kHz</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>5 kHz</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="1" column="2" colspan="2">
+          <widget class="QCheckBox" name="motorInvertCb">
+           <property name="text">
+            <string>Invert direction</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_21">
+           <property name="text">
+            <string>Max duty cycle</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QSpinBox" name="motorMaxDutyCycleSb">
+           <property name="maximum">
+            <number>600</number>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="2" colspan="2">
+          <widget class="QLabel" name="label_22">
+           <property name="text">
+            <string>600 = 100 %</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_23">
+           <property name="text">
+            <string>Max acceleration</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QSpinBox" name="motorMaxAccelerationSb">
+           <property name="minimum">
+            <number>1</number>
+           </property>
+           <property name="maximum">
+            <number>600</number>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="2" colspan="2">
+          <widget class="QLabel" name="label_24">
+           <property name="text">
+            <string>600 = No limit</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="label_20">
+           <property name="text">
+            <string>Brake duration [ms]</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <widget class="QSpinBox" name="motorBrakeDurationSb">
+           <property name="maximum">
+            <number>51</number>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="label_26">
+           <property name="text">
+            <string>Max current [A]</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="1">
+          <widget class="QDoubleSpinBox" name="motorMaxCurrentSb">
+           <property name="decimals">
+            <number>3</number>
+           </property>
+           <property name="maximum">
+            <double>32.000000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="0">
+          <widget class="QLabel" name="label_27">
+           <property name="text">
+            <string>Current calibration</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="1">
+          <widget class="QSpinBox" name="motorCurrentCalibSb">
+           <property name="minimum">
+            <number>1</number>
+           </property>
+           <property name="maximum">
+            <number>255</number>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="4">
+          <widget class="QPushButton" name="applyMotorBtn">
+           <property name="text">
+            <string>Write to Jrk</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="2" colspan="2">
+          <widget class="QLabel" name="label_25">
+           <property name="text">
+            <string>0.000 = No limit</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="tab_5">
+       <attribute name="title">
+        <string>PID</string>
+       </attribute>
+       <widget class="QWidget" name="">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>10</y>
+          <width>521</width>
+          <height>263</height>
+         </rect>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_5">
+         <item row="0" column="1">
+          <widget class="QLabel" name="label_30">
+           <property name="minimumSize">
+            <size>
+             <width>85</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Proportional</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_33">
+           <property name="text">
+            <string>Multiplier</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QSpinBox" name="pidPropMultSb">
+           <property name="maximum">
+            <number>1023</number>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_34">
+           <property name="text">
+            <string>Divisor 2:s exponent</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QSpinBox" name="pidPropExpSb">
+           <property name="maximum">
+            <number>15</number>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QLabel" name="pidPropLabel">
+           <property name="font">
+            <font>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>0</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="label_35">
+           <property name="text">
+            <string>Period [ms]</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <widget class="QSpinBox" name="pidPeriodSb">
+           <property name="minimum">
+            <number>1</number>
+           </property>
+           <property name="maximum">
+            <number>8191</number>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="label_36">
+           <property name="text">
+            <string>Integral limit</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="1">
+          <widget class="QSpinBox" name="pidIntegralLimitSb">
+           <property name="maximum">
+            <number>32767</number>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="0">
+          <widget class="QLabel" name="label_37">
+           <property name="text">
+            <string>Feedback dead zone</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="1">
+          <widget class="QSpinBox" name="feedbackDeadZoneSb">
+           <property name="maximum">
+            <number>255</number>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="0" colspan="5">
+          <widget class="QCheckBox" name="pidResetIntegralCb">
+           <property name="text">
+            <string>Reset integral when proportional term &gt; max duty cycle</string>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="5">
+          <widget class="QPushButton" name="applyPIDBtn">
+           <property name="text">
+            <string>Write to Jrk</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QLabel" name="label_31">
+           <property name="minimumSize">
+            <size>
+             <width>85</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Integral</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="2">
+          <widget class="QSpinBox" name="pidIntMultSb">
+           <property name="maximum">
+            <number>1023</number>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="2">
+          <widget class="QSpinBox" name="pidIntExpSb">
+           <property name="maximum">
+            <number>15</number>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="3">
+          <widget class="QLabel" name="label_32">
+           <property name="minimumSize">
+            <size>
+             <width>85</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Derivative</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="3">
+          <widget class="QSpinBox" name="pidDerMultSb">
+           <property name="maximum">
+            <number>1023</number>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="3">
+          <widget class="QSpinBox" name="pidDerExpSb">
+           <property name="maximum">
+            <number>15</number>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="2">
+          <widget class="QLabel" name="pidIntLabel">
+           <property name="font">
+            <font>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>0</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="3">
+          <widget class="QLabel" name="pidDerLabel">
+           <property name="font">
+            <font>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>0</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_38">
+           <property name="font">
+            <font>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Term</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="tab_3">
+       <attribute name="title">
+        <string>Status</string>
+       </attribute>
+       <widget class="QPushButton" name="clrerrorsBtn">
+        <property name="geometry">
+         <rect>
+          <x>430</x>
+          <y>10</y>
+          <width>98</width>
+          <height>27</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Clear errors</string>
+        </property>
+       </widget>
+      </widget>
+     </widget>
+    </item>
+    <item row="2" column="0">
+     <widget class="QLabel" name="label_39">
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Settings</string>
+      </property>
      </widget>
     </item>
    </layout>
