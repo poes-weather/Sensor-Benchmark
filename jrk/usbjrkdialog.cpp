@@ -123,6 +123,10 @@ void USBJrkDialog::onJrkReadWrite(void)
 
     vars = *(jrk_variables *) iobuffer;
 
+    toggleErrors();
+
+    timer_loop++;
+
     str.sprintf("%d", vars.feedback);
     ui->feedbackLabel->setText(str);
     str.sprintf("%d", vars.scaledFeedback);
@@ -206,6 +210,7 @@ void USBJrkDialog::onJrkReadWrite(void)
 void USBJrkDialog::on_refreshBtn_clicked()
 {
     jrk_timer->stop();
+    timer_loop = 0;
 
     wFlags = WF_INIT;
 
@@ -689,5 +694,39 @@ void USBJrkDialog::calcDerivative(void)
 }
 
 //---------------------------------------------------------------------------
+void USBJrkDialog::toggleErrors(void)
+{
+    unsigned short err;
+
+    err = vars.errorOccurredBits | vars.errorFlagBits;
+
+#if 0
+    if(last_err == err)
+        return;
+    else
+        last_err = err;
+#endif
+
+    QString str;
+
+    str.sprintf("Error code 0x%04x", err);
+    ui->errorLabel->setText(str);
+
+    ui->errWaitingCb->setChecked(err & 0x0001);
+    ui->errPowerCb->setChecked(err & 0x0002);
+    ui->errMotorDriverCb->setChecked(err & 0x0004);
+    ui->errInputInvalidCb->setChecked(err & 0x0008);
+    ui->errInputDisconnectCb->setChecked(err & 0x0010);
+    ui->errFeedbackDisconnectCb->setChecked(err & 0x0020);
+    ui->errMaxCurrentCb->setChecked(err & 0x0040);
+    ui->errSerialSigCb->setChecked(err & 0x0080);
+    ui->errSerialOverrunCb->setChecked(err & 0x0100);
+    ui->errSerialRXbuffCb->setChecked(err & 0x0200);
+    ui->errCRCCb->setChecked(err & 0x0400);
+    ui->errSerialProtocolCb->setChecked(err & 0x0800);
+    ui->errTimeoutCb->setChecked(err & 0x1000);
 
 
+}
+
+//---------------------------------------------------------------------------

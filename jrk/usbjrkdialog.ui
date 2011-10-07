@@ -7,19 +7,19 @@
     <x>0</x>
     <y>0</y>
     <width>659</width>
-    <height>665</height>
+    <height>833</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>USB Jrk Motor Contol</string>
   </property>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>10</x>
      <y>10</y>
      <width>631</width>
-     <height>632</height>
+     <height>801</height>
     </rect>
    </property>
    <layout class="QGridLayout" name="mainLayout">
@@ -271,18 +271,18 @@
      <widget class="QTabWidget" name="tabWidget">
       <property name="minimumSize">
        <size>
-        <width>611</width>
-        <height>351</height>
+        <width>621</width>
+        <height>480</height>
        </size>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>4</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
         <string>Feedback</string>
        </attribute>
-       <widget class="QWidget" name="">
+       <widget class="QWidget" name="layoutWidget">
         <property name="geometry">
          <rect>
           <x>11</x>
@@ -634,7 +634,7 @@
        <attribute name="title">
         <string>Motor</string>
        </attribute>
-       <widget class="QWidget" name="">
+       <widget class="QWidget" name="layoutWidget">
         <property name="geometry">
          <rect>
           <x>10</x>
@@ -800,7 +800,7 @@
        <attribute name="title">
         <string>PID</string>
        </attribute>
-       <widget class="QWidget" name="">
+       <widget class="QWidget" name="layoutWidget">
         <property name="geometry">
          <rect>
           <x>10</x>
@@ -1041,18 +1041,148 @@
        <attribute name="title">
         <string>Status</string>
        </attribute>
-       <widget class="QPushButton" name="clrerrorsBtn">
+       <widget class="QWidget" name="">
         <property name="geometry">
          <rect>
-          <x>430</x>
+          <x>10</x>
           <y>10</y>
-          <width>98</width>
-          <height>27</height>
+          <width>541</width>
+          <height>426</height>
          </rect>
         </property>
-        <property name="text">
-         <string>Clear errors</string>
-        </property>
+        <layout class="QGridLayout" name="gridLayout_6">
+         <item row="1" column="0" colspan="2">
+          <widget class="QLabel" name="errorLabel">
+           <property name="font">
+            <font>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Error</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="2">
+          <widget class="QLabel" name="label_41">
+           <property name="text">
+            <string>Setting</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="3">
+          <widget class="QLabel" name="label_42">
+           <property name="text">
+            <string>Latch</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0" colspan="2">
+          <widget class="QCheckBox" name="errWaitingCb">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="text">
+            <string>Awaiting command</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0" colspan="2">
+          <widget class="QCheckBox" name="errPowerCb">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="text">
+            <string>No power</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0" colspan="2">
+          <widget class="QCheckBox" name="errMotorDriverCb">
+           <property name="text">
+            <string>Motor driver error</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0" colspan="2">
+          <widget class="QCheckBox" name="errInputInvalidCb">
+           <property name="text">
+            <string>Input invalid</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="0" colspan="2">
+          <widget class="QCheckBox" name="errInputDisconnectCb">
+           <property name="text">
+            <string>Input disconnect</string>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="0" colspan="2">
+          <widget class="QCheckBox" name="errFeedbackDisconnectCb">
+           <property name="text">
+            <string>Feedback disconnect</string>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="0" colspan="2">
+          <widget class="QCheckBox" name="errMaxCurrentCb">
+           <property name="text">
+            <string>Max current exceeded</string>
+           </property>
+          </widget>
+         </item>
+         <item row="9" column="0" colspan="2">
+          <widget class="QCheckBox" name="errSerialSigCb">
+           <property name="text">
+            <string>Serial signal error</string>
+           </property>
+          </widget>
+         </item>
+         <item row="10" column="0" colspan="2">
+          <widget class="QCheckBox" name="errSerialOverrunCb">
+           <property name="text">
+            <string>Serial overrun</string>
+           </property>
+          </widget>
+         </item>
+         <item row="13" column="0" colspan="2">
+          <widget class="QCheckBox" name="errSerialProtocolCb">
+           <property name="text">
+            <string>Serial protocol error</string>
+           </property>
+          </widget>
+         </item>
+         <item row="14" column="0" colspan="2">
+          <widget class="QCheckBox" name="errTimeoutCb">
+           <property name="text">
+            <string>Serial timeout error</string>
+           </property>
+          </widget>
+         </item>
+         <item row="11" column="0">
+          <widget class="QCheckBox" name="errSerialRXbuffCb">
+           <property name="text">
+            <string>Serial RX buffer full</string>
+           </property>
+          </widget>
+         </item>
+         <item row="12" column="0">
+          <widget class="QCheckBox" name="errCRCCb">
+           <property name="text">
+            <string>Serial CRC error</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="4">
+          <widget class="QPushButton" name="clrerrorsBtn">
+           <property name="text">
+            <string>Clear errors</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </widget>
       </widget>
      </widget>

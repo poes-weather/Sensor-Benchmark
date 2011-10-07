@@ -71,12 +71,14 @@ private slots:
     void on_pidDerMultSb_valueChanged(int arg1);
     void on_pidDerExpSb_valueChanged(int arg1);
 
+
 protected:
     void set_parameter_u8(unsigned char id, unsigned char value);
     void set_parameter_u16(unsigned char id, unsigned short value);
     void calcProportional(void);
     void calcIntegral(void);
     void calcDerivative(void);
+    void toggleErrors(void);
 
 
 private:
@@ -88,6 +90,8 @@ private:
     TUSBDevice *jrk;
     jrk_variables vars;
     unsigned char *iobuffer;
+    unsigned long timer_loop;
+    unsigned short last_err;
 
     double mindeg, maxdeg, minfb, maxfb, scaledminfb, scaledmaxfb;
     double gotodeg, current_deg;
