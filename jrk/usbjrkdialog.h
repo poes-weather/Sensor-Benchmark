@@ -72,7 +72,10 @@ private slots:
     void on_pidDerExpSb_valueChanged(int arg1);
 
 
+    void on_devicesCB_currentIndexChanged(int index);
+
 protected:
+    void readParameters(void);
     void set_parameter_u8(unsigned char id, unsigned char value);
     void set_parameter_u16(unsigned char id, unsigned short value);
     void calcProportional(void);

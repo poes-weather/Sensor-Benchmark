@@ -207,11 +207,29 @@ void USBJrkDialog::onJrkReadWrite(void)
 }
 
 //---------------------------------------------------------------------------
+void USBJrkDialog::on_devicesCB_currentIndexChanged(int index)
+{
+    if(wFlags & WF_INIT)
+        return;
+
+    jrk_timer->stop();
+    timer_loop = 0;
+    wFlags = WF_INIT;
+
+    jrk = usb->get_device(index);
+    readParameters();
+
+    wFlags = 0;
+
+    if(jrk)
+        jrk_timer->start();
+}
+
+//---------------------------------------------------------------------------
 void USBJrkDialog::on_refreshBtn_clicked()
 {
     jrk_timer->stop();
     timer_loop = 0;
-
     wFlags = WF_INIT;
 
     ui->devicesCB->clear();
@@ -223,12 +241,22 @@ void USBJrkDialog::on_refreshBtn_clicked()
     }
 
     jrk = usb->get_device(ui->devicesCB->currentIndex());
-    if(!jrk) {
 
+    readParameters();
+
+    wFlags = 0;
+    if(jrk)
+        jrk_timer->start();
+}
+
+//---------------------------------------------------------------------------
+void USBJrkDialog::readParameters(void)
+{
+    if(!jrk)
         return;
-    }
 
-    QString str;
+    wFlags |= WF_INIT;
+
     unsigned char u8, u8_2;
     unsigned short u16;
 
@@ -311,12 +339,9 @@ void USBJrkDialog::on_refreshBtn_clicked()
 
     wFlags &= ~WF_INIT;
 
-
     calcProportional();
     calcIntegral();
     calcDerivative();
-
-    jrk_timer->start();
 }
 
 //---------------------------------------------------------------------------
@@ -730,3 +755,4 @@ void USBJrkDialog::toggleErrors(void)
 }
 
 //---------------------------------------------------------------------------
+
