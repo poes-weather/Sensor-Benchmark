@@ -136,10 +136,12 @@ void USBJrkDialog::readSettings(void)
 //---------------------------------------------------------------------------
 void USBJrkDialog::writeSettings(void)
 {
+#if 0
     QFile file(ini);
 
     if(file.exists(ini))
         file.remove();
+#endif
 
     QSettings reg(ini, QSettings::IniFormat);
     jrkusb->writeSettings(&reg);
