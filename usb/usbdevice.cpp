@@ -169,7 +169,7 @@ unsigned short TUSBDevice::control_read_u16(int requesttype, int request, int va
 QString TUSBDevice::manufacturer(void)
 {
     if(!handle)
-        return "?";
+        return "";
 
     if(dev->descriptor.iManufacturer == 0)
         return "";
@@ -187,7 +187,7 @@ QString TUSBDevice::manufacturer(void)
 QString TUSBDevice::product(void)
 {
     if(!handle)
-        return "?";
+        return "";
 
     if(dev->descriptor.iProduct == 0)
         return "";
@@ -205,7 +205,7 @@ QString TUSBDevice::product(void)
 QString TUSBDevice::serialnumber(void)
 {
     if(!handle)
-        return "?";
+        return "";
 
     if(dev->descriptor.iSerialNumber == 0)
         return "";
@@ -223,7 +223,7 @@ QString TUSBDevice::serialnumber(void)
 QString TUSBDevice::shortname(void)
 {
     if(!handle)
-        return "?";
+        return "";
 
     QString str;
 

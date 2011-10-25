@@ -25,8 +25,6 @@
 #define USBJRKDIALOG_H
 
 #include <QDialog>
-
-
 #include "jrk_protocol.h"
 
 namespace Ui {
@@ -36,13 +34,14 @@ namespace Ui {
 class QTimer;
 class TUSB;
 class TUSBDevice;
+class TJrkUSB;
 
 class USBJrkDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit USBJrkDialog(QWidget *parent = 0);
+    explicit USBJrkDialog(QString _ini, QWidget *parent = 0);
     ~USBJrkDialog();
 
 private slots:
@@ -75,6 +74,9 @@ private slots:
     void on_devicesCB_currentIndexChanged(int index);
 
 protected:
+    void readSettings(void);
+    void writeSettings(void);
+
     void readParameters(void);
     void set_parameter_u8(unsigned char id, unsigned char value);
     void set_parameter_u16(unsigned char id, unsigned short value);
@@ -86,11 +88,13 @@ protected:
 
 private:
     Ui::USBJrkDialog *ui;
-    QTimer *jrk_timer;
-    int wFlags;
+    QTimer  *jrk_timer;
+    int     wFlags;
+    QString ini;
 
     TUSB *usb;
-    TUSBDevice *jrk;
+    TUSBDevice    *jrk;
+    TJrkUSB       *jrkusb;
     jrk_variables vars;
     unsigned char *iobuffer;
     unsigned long timer_loop;

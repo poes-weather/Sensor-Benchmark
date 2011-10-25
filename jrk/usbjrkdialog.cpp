@@ -20,6 +20,8 @@
 */
 //---------------------------------------------------------------------------
 #include <QTimer>
+#include <QFile>
+#include <QSettings>
 #include <unistd.h>
 #include <time.h>
 #include <stdio.h>
@@ -29,6 +31,7 @@
 #include "ui_usbjrkdialog.h"
 #include "tusb.h"
 #include "usbdevice.h"
+#include "jrkusb.h"
 
 //---------------------------------------------------------------------------
 #define WF_INIT               1
@@ -42,12 +45,13 @@
 
 #define RINT(x) (floor(x) + 0.5)
 //---------------------------------------------------------------------------
-USBJrkDialog::USBJrkDialog(QWidget *parent) :
+USBJrkDialog::USBJrkDialog(QString _ini, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::USBJrkDialog)
 {
     ui->setupUi(this);
     setLayout(ui->mainLayout);
+    ini = _ini;
 
 #if 0
     ui->targetLabel->setText("");
@@ -61,9 +65,6 @@ USBJrkDialog::USBJrkDialog(QWidget *parent) :
 
     minfb = ui->feedbackMinDegSb->value();
     maxfb = ui->feedbackMaxDegSb->value();
-    scaledminfb = ui->scaledfeedbackMinDegSb->value();
-    scaledmaxfb = ui->scaledfeedbackMaxDegSb->value();
-
     mindeg = ui->mindegSb->value();
     maxdeg = ui->maxdegSb->value();
 
@@ -79,6 +80,7 @@ USBJrkDialog::USBJrkDialog(QWidget *parent) :
 
     iobuffer = (unsigned char *) malloc(JRK_IO_BUF_SIZE);
     usb = new TUSB();
+    jrkusb = new TJrkUSB;
 
     on_refreshBtn_clicked();
 }
@@ -86,6 +88,7 @@ USBJrkDialog::USBJrkDialog(QWidget *parent) :
 //---------------------------------------------------------------------------
 USBJrkDialog::~USBJrkDialog()
 {
+    delete jrkusb;
 
     delete usb;
     free(iobuffer);
@@ -102,8 +105,46 @@ void USBJrkDialog::onJrkDialog_finished(int)
 
     if(jrk) {
         on_stopBtn_clicked();
-        usleep(50 * 1000);
+        usleep(10 * 1000);
+
+        writeSettings();
     }
+}
+
+//---------------------------------------------------------------------------
+void USBJrkDialog::readSettings(void)
+{
+    QFile file(ini);
+
+    if(!file.exists(ini))
+        return;
+
+    QSettings reg(ini, QSettings::IniFormat);
+    jrkusb->readSettings(&reg);
+
+    ui->feedbackMinDegSb->setValue(jrkusb->minFeedback());
+    ui->feedbackMaxDegSb->setValue(jrkusb->maxFeedback());
+    ui->mindegSb->setValue(jrkusb->minPos());
+    ui->maxdegSb->setValue(jrkusb->maxPos());
+
+    minfb = jrkusb->minFeedback();
+    maxfb = jrkusb->maxFeedback();
+    mindeg = jrkusb->minPos();
+    maxdeg = jrkusb->maxPos();
+}
+
+//---------------------------------------------------------------------------
+void USBJrkDialog::writeSettings(void)
+{
+    QFile file(ini);
+
+    if(file.exists(ini))
+        file.remove();
+
+    QSettings reg(ini, QSettings::IniFormat);
+    jrkusb->writeSettings(&reg);
+
+    qDebug("INI: %s", ini.toStdString().c_str());
 }
 
 //---------------------------------------------------------------------------
@@ -135,9 +176,6 @@ void USBJrkDialog::onJrkReadWrite(void)
     if(wFlags & (WF_GOTO_MIN | WF_GOTO_MAX)) {
         sb = wFlags & WF_GOTO_MIN ? ui->feedbackMinDegSb:ui->feedbackMaxDegSb;
         sb->setValue(vars.feedback);
-
-        sb = wFlags & WF_GOTO_MIN ? ui->scaledfeedbackMinDegSb:ui->scaledfeedbackMaxDegSb;
-        sb->setValue(vars.scaledFeedback);
     }
 
     if(!(wFlags & WF_CALIBRATING)) {
@@ -148,20 +186,10 @@ void USBJrkDialog::onJrkReadWrite(void)
         if(d_fb > 0 && d_deg > 0) {
             sfb = vars.feedback - minfb;
             degrees = mindeg + (d_deg / d_fb) * sfb;
+            current_deg = degrees;
 
             str.sprintf("%.3f", degrees);
             ui->degreesLabel->setText(str);
-        }
-
-        d_fb  = scaledmaxfb - scaledminfb;
-        if(d_fb > 0 && d_deg > 0) {
-            sfb = vars.scaledFeedback - scaledminfb;
-            degrees = mindeg + (d_deg / d_fb) * sfb;
-
-            str.sprintf("%.3f", degrees);
-            ui->scaleddegreesLabel->setText(str);
-
-            current_deg = degrees;
         }
 
         if(wFlags & WF_CALIB_MIN_FB) {
@@ -196,9 +224,9 @@ void USBJrkDialog::onJrkReadWrite(void)
                 target += 1;
 
             target = target < 0 ? 0:target > 4095 ? 4095:target;
-            on_targetSlider_valueChanged(target);
+            ui->targetSlider->setValue(target);
 
-            usleep(50 * 1000);
+            usleep(10 * 1000);
         }
 
 
@@ -217,12 +245,16 @@ void USBJrkDialog::on_devicesCB_currentIndexChanged(int index)
     wFlags = WF_INIT;
 
     jrk = usb->get_device(index);
+    jrkusb->setDevice(jrk);
+
     readParameters();
 
     wFlags = 0;
 
-    if(jrk)
+    if(jrk) {
+        readSettings();
         jrk_timer->start();
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -241,6 +273,8 @@ void USBJrkDialog::on_refreshBtn_clicked()
     }
 
     jrk = usb->get_device(ui->devicesCB->currentIndex());
+    jrkusb->setDevice(jrk);
+    readSettings();
 
     readParameters();
 
@@ -439,14 +473,16 @@ void USBJrkDialog::on_applyDegBtn_clicked()
 
     minfb = ui->feedbackMinDegSb->value();
     maxfb = ui->feedbackMaxDegSb->value();
-    scaledminfb = ui->scaledfeedbackMinDegSb->value();
-    scaledmaxfb = ui->scaledfeedbackMaxDegSb->value();
-
     mindeg = ui->mindegSb->value();
     maxdeg = ui->maxdegSb->value();
 
     ui->gotoDegSb->setMinimum(mindeg);
     ui->gotoDegSb->setMaximum(maxdeg);
+
+    jrkusb->minFeedback(minfb);
+    jrkusb->maxFeedback(maxfb);
+    jrkusb->minPos(mindeg);
+    jrkusb->maxPos(maxdeg);
 
     wFlags &= ~WF_NO_UPDATE;    
 }
@@ -480,6 +516,8 @@ void USBJrkDialog::on_gotoMaxBtn_clicked()
 //---------------------------------------------------------------------------
 void USBJrkDialog::on_pushButton_clicked()
 {
+#if 0
+
     if(!jrk)
         return;
 
@@ -532,6 +570,8 @@ void USBJrkDialog::on_pushButton_clicked()
 
     ui->pushButton->setEnabled(true);
     ui->pushButton->setText("Record LUT");
+
+#endif
 }
 
 //---------------------------------------------------------------------------
@@ -734,7 +774,7 @@ void USBJrkDialog::toggleErrors(void)
 
     QString str;
 
-    str.sprintf("Error code 0x%04x", err);
+    str.sprintf("Error: 0x%04x", err);
     ui->errorLabel->setText(str);
 
     ui->errWaitingCb->setChecked(err & 0x0001);
@@ -750,8 +790,6 @@ void USBJrkDialog::toggleErrors(void)
     ui->errCRCCb->setChecked(err & 0x0400);
     ui->errSerialProtocolCb->setChecked(err & 0x0800);
     ui->errTimeoutCb->setChecked(err & 0x1000);
-
-
 }
 
 //---------------------------------------------------------------------------
