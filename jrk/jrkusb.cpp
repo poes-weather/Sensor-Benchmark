@@ -59,8 +59,11 @@ bool TJrkUSB::setDevice(TUSBDevice *usbdev)
         return false;
 
     sn_ = jrk->serialnumber();
+
+#if 0
     min_fb = jrk->control_read_u16(JRK_REQUEST_GET_TYPE, JRK_REQUEST_GET_PARAMETER, 0, JRK_PARAMETER_FEEDBACK_MINIMUM);
     max_fb = jrk->control_read_u16(JRK_REQUEST_GET_TYPE, JRK_REQUEST_GET_PARAMETER, 0, JRK_PARAMETER_FEEDBACK_MAXIMUM);
+#endif
 
     current_deg = feedbackToPos(vars.feedback);
 
@@ -83,8 +86,11 @@ void TJrkUSB::readSettings(QSettings *reg)
 
     max_fb = reg->value("MaxFeedback", "4095").toInt();
     min_fb = reg->value("MinFeedback", "0").toInt();
+
+#ifdef SENSOR_BENCHMARK
     max_deg = reg->value("MaxDegrees", "360").toDouble();
     min_deg = reg->value("MinDegrees", "0").toDouble();
+#endif
 
     reg->endGroup();
 }
@@ -99,8 +105,11 @@ void TJrkUSB::writeSettings(QSettings *reg)
 
     reg->setValue("MaxFeedback", max_fb);
     reg->setValue("MinFeedback", min_fb);
+
+#ifdef SENSOR_BENCHMARK
     reg->setValue("MaxDegrees", max_deg);
     reg->setValue("MinDegrees", min_deg);
+#endif
 
     reg->endGroup();
 }
@@ -180,7 +189,7 @@ void TJrkUSB::moveTo(double deg)
     double delta = fabs(currentPos() - deg);
 
     if(isOpen() && delta >= 0.01)
-        if(target(posToTarget(deg)))
+        if(setTarget(posToTarget(deg)))
             current_deg = deg;
 }
 
@@ -188,8 +197,6 @@ void TJrkUSB::moveTo(double deg)
 // mode & 1 = read variables
 double TJrkUSB::readPos(int mode)
 {
-    vars.feedback = 0;
-
     if(mode & 1)
         readVariables();
 
@@ -199,12 +206,12 @@ double TJrkUSB::readPos(int mode)
 }
 
 //---------------------------------------------------------------------------
-bool TJrkUSB::target(unsigned short target)
+bool TJrkUSB::setTarget(unsigned short target)
 {
     if(isOpen())
         if(jrk->control_write(JRK_REQUEST_SET_TYPE,
                               JRK_REQUEST_SET_TARGET,
-                              (target & 0xfff), 0))
+                              (target & 0x0fff), 0))
             return true;
 
     return false;
@@ -214,8 +221,6 @@ bool TJrkUSB::target(unsigned short target)
 // mode & 1 = read variables
 unsigned short TJrkUSB::target(int mode)
 {
-    vars.target = 0;
-
     if(mode & 1)
         readVariables();
 
@@ -226,8 +231,6 @@ unsigned short TJrkUSB::target(int mode)
 // mode & 1 = read variables
 unsigned short TJrkUSB::feedback(int mode)
 {
-    vars.feedback = 0;
-
     if(mode & 1)
         readVariables();
 
@@ -250,22 +253,25 @@ double TJrkUSB::feedbackToPos(int feedback)
 //---------------------------------------------------------------------------
 unsigned short TJrkUSB::posToTarget(double deg)
 {
-    double t;
+    double t, d_deg, dpt;
     unsigned short u16;
 
-    if(deg < min_deg)
-        deg = min_deg;
-    if(deg > max_deg)
-        deg = max_deg;
+    deg = ((deg < min_deg) ? min_deg:((deg > max_deg) ? max_deg:deg));
 
     if(deg >= max_deg)
         u16 = 4095;
     else if(deg <= min_deg)
         u16 = 0;
     else {
-        t = (max_deg - min_deg) / 4095.0;
-        u16 = RINT(t);
+        d_deg = max_deg - min_deg;
+        if(d_deg <= 0)
+            return 0;
+
+        dpt = d_deg / 4095.0; // degrees per target tick
+
+        t = (deg - min_deg) / dpt;
+        u16 = rint(t);
     }
 
-    return u16;
+    return (u16 & 0x0fff);
 }

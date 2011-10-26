@@ -44,7 +44,7 @@ public:
     void    readSettings(QSettings *reg);
     void    writeSettings(QSettings *reg);
 
-    bool    target(unsigned short target);
+    bool    setTarget(unsigned short target);
     unsigned short target(int mode = 0);
     unsigned short feedback(int mode = 0);
 
@@ -68,8 +68,10 @@ public:
     void    moveTo(double deg);
     bool    readVariables(void);
 
+    TUSBDevice *udev(void) { return jrk; }
+
 protected:
-    double feedbackToPos(int target);
+    double feedbackToPos(int feedback);
     unsigned short posToTarget(double deg);
 
 private:

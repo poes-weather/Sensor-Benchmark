@@ -20,6 +20,7 @@
 */
 //---------------------------------------------------------------------------
 #include <QTimer>
+#include <QDateTime>
 #include <QFile>
 #include <QSettings>
 #include <unistd.h>
@@ -42,6 +43,8 @@
 #define WF_GOTO_DEG          32
 #define WF_CALIB_MIN_FB      64
 #define WF_CALIB_MAX_FB     128
+#define WF_VELOCITY         256
+#define WF_FORWARD          512
 
 #define RINT(x) (floor(x) + 0.5)
 //---------------------------------------------------------------------------
@@ -155,10 +158,11 @@ void USBJrkDialog::onJrkReadWrite(void)
     if(!jrk || (wFlags & (WF_INIT | WF_NO_UPDATE)))
         return;
 
+    QDateTime dt;
     QSpinBox *sb;
     QString str;
     double degrees, d_fb, d_deg, sfb;
-    double delta;
+    double delta, delta2;
     int target;
 
     if(!jrk->control_transfer(JRK_REQUEST_GET_TYPE, JRK_REQUEST_GET_VARIABLES, 0, 0, (char *)iobuffer, sizeof(jrk_variables_t)))
@@ -174,6 +178,8 @@ void USBJrkDialog::onJrkReadWrite(void)
     ui->feedbackLabel->setText(str);
     str.sprintf("%d", vars.scaledFeedback);
     ui->scaledfbLabel->setText(str);
+
+    dt = QDateTime::currentDateTime();
 
     if(wFlags & (WF_GOTO_MIN | WF_GOTO_MAX)) {
         sb = wFlags & WF_GOTO_MIN ? ui->feedbackMinDegSb:ui->feedbackMaxDegSb;
@@ -230,6 +236,29 @@ void USBJrkDialog::onJrkReadWrite(void)
 
             usleep(10 * 1000);
         }
+
+        if(wFlags & WF_VELOCITY && (timer_loop % 20) == 0) {
+            delta = fabs(current_deg - start_deg);
+            delta2 = startdt.msecsTo(dt);
+
+            if(delta2 != 0)
+                ui->velocitySb->setValue(delta2 / delta);
+
+            if(delta2 > 5000) {
+                // can we stop?
+                if(wFlags & WF_FORWARD) {
+                    if(vars.feedback >= (maxfb - 3))
+                        on_velocityBtn_clicked();
+                }
+                else {
+                    if(vars.feedback >= (minfb + 3))
+                        on_velocityBtn_clicked();
+                }
+            }
+
+
+        }
+
 
 
     }
@@ -767,13 +796,6 @@ void USBJrkDialog::toggleErrors(void)
 
     err = vars.errorOccurredBits | vars.errorFlagBits;
 
-#if 0
-    if(last_err == err)
-        return;
-    else
-        last_err = err;
-#endif
-
     QString str;
 
     str.sprintf("Error: 0x%04x", err);
@@ -795,4 +817,30 @@ void USBJrkDialog::toggleErrors(void)
 }
 
 //---------------------------------------------------------------------------
+void USBJrkDialog::on_velocityBtn_clicked()
+{
+    if(!jrk)
+        return;
 
+    if(wFlags & WF_VELOCITY) {
+        wFlags &= ~(WF_VELOCITY | WF_FORWARD);
+
+        on_stopBtn_clicked();
+    }
+    else {
+        start_deg = jrkusb->readPos(1);
+        qDebug("Start pos: %g", start_deg);
+
+        wFlags |= vars.target < 2048 ? WF_FORWARD:0;
+
+        startdt = QDateTime::currentDateTime();
+        ui->targetSlider->setValue(vars.target > 2048 ? 0:4095);
+
+        timer_loop = 0;
+        wFlags |= WF_VELOCITY;
+    }
+
+    ui->velocityBtn->setText(wFlags & WF_VELOCITY ? "Stop":"Start");
+}
+
+//---------------------------------------------------------------------------

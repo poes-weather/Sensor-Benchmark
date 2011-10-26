@@ -25,11 +25,13 @@
 #define USBJRKDIALOG_H
 
 #include <QDialog>
+#include <QDateTime>
 #include "jrk_protocol.h"
 
 namespace Ui {
     class USBJrkDialog;
 }
+
 
 class QTimer;
 class TUSB;
@@ -73,6 +75,8 @@ private slots:
 
     void on_devicesCB_currentIndexChanged(int index);
 
+    void on_velocityBtn_clicked();
+
 protected:
     void readSettings(void);
     void writeSettings(void);
@@ -103,6 +107,9 @@ private:
     double mindeg, maxdeg, minfb, maxfb, scaledminfb, scaledmaxfb;
     double gotodeg, current_deg;
     int    gototarget;
+
+    QDateTime startdt;
+    double    start_deg;
 
 };
 

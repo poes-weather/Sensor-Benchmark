@@ -61,6 +61,9 @@ INCLUDEPATH += gauge \
 
 #DEFINES += DEBUG_GPS
 
+DEFINES += SENSOR_BENCHMARK
+
+
 unix {
    DEFINES += _TTY_LINUX_
 
