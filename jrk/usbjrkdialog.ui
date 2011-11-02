@@ -912,7 +912,7 @@
          <item row="2" column="2">
           <widget class="QSpinBox" name="pidIntExpSb">
            <property name="maximum">
-            <number>15</number>
+            <number>16</number>
            </property>
           </widget>
          </item>
@@ -1146,7 +1146,7 @@
        <attribute name="title">
         <string>Miscellaneous</string>
        </attribute>
-       <widget class="QWidget" name="">
+       <widget class="QWidget" name="layoutWidget">
         <property name="geometry">
          <rect>
           <x>20</x>

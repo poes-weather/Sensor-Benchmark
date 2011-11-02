@@ -23,7 +23,7 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>1</number>
    </property>
    <widget class="QWidget" name="tab">
     <attribute name="title">
@@ -83,7 +83,7 @@
     <attribute name="title">
      <string>Tune</string>
     </attribute>
-    <widget class="QWidget" name="">
+    <widget class="QWidget" name="layoutWidget">
      <property name="geometry">
       <rect>
        <x>11</x>
@@ -354,7 +354,7 @@
          <x>10</x>
          <y>10</y>
          <width>591</width>
-         <height>281</height>
+         <height>299</height>
         </rect>
        </property>
        <layout class="QGridLayout" name="gridLayout_4">

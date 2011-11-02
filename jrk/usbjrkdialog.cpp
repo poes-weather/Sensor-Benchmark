@@ -704,13 +704,16 @@ void USBJrkDialog::on_applyPIDBtn_clicked()
 
     set_parameter_u16(JRK_PARAMETER_PROPORTIONAL_MULTIPLIER, ui->pidPropMultSb->value());
     set_parameter_u8(JRK_PARAMETER_PROPORTIONAL_EXPONENT, ui->pidPropExpSb->value());
+
     set_parameter_u16(JRK_PARAMETER_INTEGRAL_MULTIPLIER, ui->pidIntMultSb->value());
-    set_parameter_u8(JRK_PARAMETER_INTEGRAL_EXPONENT, ui->pidPropExpSb->value());
+    set_parameter_u8(JRK_PARAMETER_INTEGRAL_EXPONENT, ui->pidIntExpSb->value());
+
     set_parameter_u16(JRK_PARAMETER_DERIVATIVE_MULTIPLIER, ui->pidDerMultSb->value());
     set_parameter_u8(JRK_PARAMETER_DERIVATIVE_EXPONENT, ui->pidDerExpSb->value());
 
     set_parameter_u16(JRK_PARAMETER_PID_PERIOD, ui->pidPeriodSb->value());
     set_parameter_u16(JRK_PARAMETER_PID_INTEGRAL_LIMIT, ui->pidIntegralLimitSb->value());
+
     set_parameter_u8(JRK_PARAMETER_PID_RESET_INTEGRAL, ui->pidResetIntegralCb->isChecked() ? 1:0);
 
     jrk->control_write(JRK_REQUEST_SET_TYPE, JRK_REQUEST_REINITIALIZE, 0, 0);
