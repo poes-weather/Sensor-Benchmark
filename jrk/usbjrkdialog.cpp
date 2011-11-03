@@ -515,6 +515,8 @@ void USBJrkDialog::on_applyDegBtn_clicked()
     jrkusb->minPos(mindeg);
     jrkusb->maxPos(maxdeg);
 
+    writeSettings();
+
     wFlags &= ~WF_NO_UPDATE;    
 }
 
