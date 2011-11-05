@@ -71,6 +71,8 @@ private:
     int  modes;
 
     double heading, pitch, roll, temperature;
+    double offset_heading, offset_pitch, offset_roll;
+
     TGauge *gauge;
 
 
@@ -83,6 +85,7 @@ private slots:
     void on_openBtn_clicked();
     void onDataAvailable(void);
     void onDialog_finished(int);
+    void on_applyOffsetBtn_clicked();
 };
 
 #endif // OSDIALOG_H

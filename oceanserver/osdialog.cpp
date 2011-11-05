@@ -69,6 +69,10 @@ OSDialog::OSDialog(QString ini, QWidget *parent) :
 
     modes = 0;
 
+    offset_heading = 0;
+    offset_pitch = 26.6;
+    offset_roll = 0;
+
     readSettings();
 }
 
@@ -117,6 +121,10 @@ void OSDialog::writeSettings(void)
     reg.setValue("Declination", ui->declinationSb->value());
     reg.setValue("Verbose", ui->verboseCb->isChecked());
 
+    reg.setValue("OffsetHeading", offset_heading);
+    reg.setValue("OffsetPitch", offset_pitch);
+    reg.setValue("OffsetRoll", offset_roll);
+
     reg.endGroup();
 }
 
@@ -139,6 +147,14 @@ void OSDialog::readSettings(void)
     ui->declinationSb->setValue(reg.value("Declination", 0).toDouble());
     ui->verboseCb->setChecked(reg.value("Verbose", 1).toBool());
     bits = reg.value("Display_Fields", 15).toInt();
+
+    offset_heading = reg.value("OffsetHeading", 0).toDouble();
+    offset_pitch   = reg.value("OffsetPitch", 0).toDouble();
+    offset_roll    = reg.value("OffsetRoll", 0).toDouble();
+
+    ui->offsetHeadingSb->setValue(offset_heading);
+    ui->offsetPitchSb->setValue(offset_pitch);
+    ui->offsetRollSb->setValue(offset_roll);
 
     reg.endGroup();
 
@@ -511,15 +527,15 @@ void OSDialog::parse_01(void)
         label = NULL;
 
         if(str == "C") {
-            heading = value.toDouble();
+            heading = value.toDouble() + offset_heading;
             //label = ui->headinglabel;
         }
         else if(str == "P") {
-            pitch = value.toDouble();
+            pitch = value.toDouble() + offset_pitch;
             //label = ui->pitchlabel;
         }
         else if(str == "R") {
-            roll = value.toDouble();
+            roll = value.toDouble() + offset_roll;
             //label = ui->rolllabel;
         }
         else if(str == "T") {
@@ -568,15 +584,15 @@ void OSDialog::parse_02(void)
 
         switch(index) {
         case 0:
-            heading = value.toDouble();
+            heading = value.toDouble() + offset_heading;
             //label = ui->headinglabel;
             break;
         case 1:
-            pitch = value.toDouble();
+            pitch = value.toDouble() + offset_pitch;
             //label = ui->pitchlabel;
             break;
         case 2:
-            roll = value.toDouble();
+            roll = value.toDouble() + offset_roll;
             //label = ui->rolllabel;
             break;
         case 3:
@@ -642,15 +658,15 @@ void OSDialog::parse_08(void)
 
         switch(index) {
         case 0:
-            heading = value.toDouble();
+            heading = value.toDouble() + offset_heading;
             //label = ui->headinglabel;
             break;
         case 1:
-            pitch = value.toDouble();
+            pitch = value.toDouble() + offset_pitch;
             //label = ui->pitchlabel;
             break;
         case 2:
-            roll = value.toDouble();
+            roll = value.toDouble() + offset_roll;
             //label = ui->rolllabel;
             break;
         case 3:
@@ -680,4 +696,11 @@ void OSDialog::parse_10(void)
 }
 
 //---------------------------------------------------------------------------
+void OSDialog::on_applyOffsetBtn_clicked()
+{
+    offset_heading = ui->offsetHeadingSb->value();
+    offset_pitch   = ui->offsetPitchSb->value();
+    offset_roll    = ui->offsetRollSb->value();
+}
 
+//---------------------------------------------------------------------------

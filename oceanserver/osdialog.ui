@@ -18,8 +18,8 @@
     <rect>
      <x>1</x>
      <y>1</y>
-     <width>603</width>
-     <height>509</height>
+     <width>802</width>
+     <height>638</height>
     </rect>
    </property>
    <layout class="QGridLayout" name="mainLayout">
@@ -30,8 +30,8 @@
      <widget class="QTabWidget" name="tabWidget">
       <property name="minimumSize">
        <size>
-        <width>601</width>
-        <height>371</height>
+        <width>600</width>
+        <height>450</height>
        </size>
       </property>
       <property name="currentIndex">
@@ -47,7 +47,7 @@
           <x>10</x>
           <y>10</y>
           <width>571</width>
-          <height>321</height>
+          <height>381</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout">
@@ -224,34 +224,10 @@
            </property>
           </widget>
          </item>
-         <item row="4" column="1">
-          <widget class="QCheckBox" name="verboseCb">
-           <property name="text">
-            <string>Verbose</string>
-           </property>
-           <property name="checked">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
          <item row="2" column="3">
           <widget class="QPushButton" name="applyDataFieldsBtn">
            <property name="text">
             <string>Apply</string>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="3">
-          <widget class="QPushButton" name="dumpconfBtn">
-           <property name="text">
-            <string>Dump config</string>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="3">
-          <widget class="QPushButton" name="helpBtn">
-           <property name="text">
-            <string>Help</string>
            </property>
           </widget>
          </item>
@@ -291,6 +267,97 @@
              <string>Comma delimited: value1,value2,value3,...</string>
             </property>
            </item>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="label_4">
+           <property name="text">
+            <string>Offset Pitch</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="label_5">
+           <property name="text">
+            <string>Offset Roll</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="0">
+          <widget class="QLabel" name="label_6">
+           <property name="text">
+            <string>Offset Heading</string>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="1">
+          <widget class="QCheckBox" name="verboseCb">
+           <property name="text">
+            <string>Verbose</string>
+           </property>
+           <property name="checked">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <widget class="QDoubleSpinBox" name="offsetPitchSb">
+           <property name="decimals">
+            <number>1</number>
+           </property>
+           <property name="minimum">
+            <double>-90.000000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>90.000000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="1">
+          <widget class="QDoubleSpinBox" name="offsetRollSb">
+           <property name="decimals">
+            <number>1</number>
+           </property>
+           <property name="minimum">
+            <double>-90.000000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>90.000000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="1">
+          <widget class="QDoubleSpinBox" name="offsetHeadingSb">
+           <property name="decimals">
+            <number>1</number>
+           </property>
+           <property name="minimum">
+            <double>-90.000000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>90.000000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="2">
+          <widget class="QPushButton" name="dumpconfBtn">
+           <property name="text">
+            <string>Dump config</string>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="3">
+          <widget class="QPushButton" name="helpBtn">
+           <property name="text">
+            <string>Help</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="3">
+          <widget class="QPushButton" name="applyOffsetBtn">
+           <property name="text">
+            <string>Apply</string>
+           </property>
           </widget>
          </item>
         </layout>
