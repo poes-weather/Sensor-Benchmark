@@ -64,7 +64,7 @@ USBJrkDialog::USBJrkDialog(QString _ini, QWidget *parent) :
 #endif
 
     ui->degSb->setVisible(false);
-    ui->pushButton->setVisible(false);
+    ui->pushButton->setVisible(true);
 
     minfb = ui->feedbackMinDegSb->value();
     maxfb = ui->feedbackMaxDegSb->value();
@@ -549,7 +549,7 @@ void USBJrkDialog::on_gotoMaxBtn_clicked()
 //---------------------------------------------------------------------------
 void USBJrkDialog::on_pushButton_clicked()
 {
-#if 0
+#if 1
 
     if(!jrk)
         return;
@@ -560,7 +560,7 @@ void USBJrkDialog::on_pushButton_clicked()
     int i;
     double degrees, d_fb, d_deg, sfb;
 
-    fp = fopen("/home/patrik/tmp/jrk-lut.txt", "w");
+    fp = fopen("jrk-lut-test.txt", "w");
     if(!fp)
         return;
 
@@ -577,7 +577,7 @@ void USBJrkDialog::on_pushButton_clicked()
     while(i <= ui->targetSlider->maximum()) {
         ui->targetSlider->setValue(i);
 
-        usleep(80 * 1000);
+        usleep(10);
 
         jrk->control_transfer(JRK_REQUEST_GET_TYPE, JRK_REQUEST_GET_VARIABLES, 0, 0, (char *)iobuffer, sizeof(jrk_variables_t));
         v = *(jrk_variables *) iobuffer;

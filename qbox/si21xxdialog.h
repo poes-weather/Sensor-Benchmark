@@ -31,6 +31,7 @@ namespace Ui {
     class SI21xxDialog;
 }
 
+class QTimer;
 class TSI21xx;
 
 //---------------------------------------------------------------------------
@@ -46,12 +47,15 @@ public:
 
 protected:
     void enablecontrols(bool enb);
+    void status(void);
 
 private:
     Ui::SI21xxDialog *ui;
     TSI21xx *si21xx;
+    QTimer *si_timer;
 
 private slots:
+    void onSIReadWrite(void);
     void onSI21xxDialog_finished(int);
     void on_openDevBtn_clicked();
     void on_tuneBtn_clicked();

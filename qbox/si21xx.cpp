@@ -17,6 +17,18 @@
 
     Email: <postmaster@poes-weather.com>
     Web: <http://www.poes-weather.com>
+
+    LO 9.75/10.6 GHz
+    IN: 10.7 - 12.75 GHz
+    Horizontal = 13V
+    Vertical = 18V
+
+    Example:
+    LO = 9750 MHz
+    Freq = 11804 MHz
+
+    http://www.sathint.com/viasat
+
 */
 //---------------------------------------------------------------------------
 #include <stdlib.h>
@@ -204,12 +216,12 @@ bool TSI21xx::i2c_init(void)
     qDebug("Carrier Estimation Control register: 0x%02x [%s:%d]", i2c_rx_buf[0], __FILE__, __LINE__);
 
 
-    //readfrequency();
+    readfrequency();
 
     // NOAA 2MHz 6.65400 ksps
-    // Feng Yun 4 MHz 1 13.308 ksps
-    //tune(1698, 6.65400 * 1.0e-3);
-#if 1
+    // Feng Yun 4 MHz 1 1330.8 ksps
+    //tune(1698, 665.400 * 1.0e-3);
+#if 0
     tune(1550, 22.5);
     readfrequency();
 #endif
@@ -225,7 +237,7 @@ bool TSI21xx::tune(double freq_mhz, double symbol_rate_msps)
 
     if(!isOpen())
         return false;
-    else if(symbol_rate_msps < 0.1e-3 || symbol_rate_msps > 45)
+    else if(symbol_rate_msps < 1 || symbol_rate_msps > 45)
         return false;
     else if(freq_mhz == current_freq || symbol_rate_msps == current_symbol_rate)
         return acquire();
@@ -423,6 +435,9 @@ double TSI21xx::readfrequency(void)
     freq = freq_coarse - freq_fine;
 
     qDebug("Current freq: %f MHz [%s:%d]", freq, __FILE__, __LINE__);
+
+    current_freq = freq;
+    current_symbol_rate = sps;
 
     return freq;
 }
@@ -643,6 +658,7 @@ unsigned short TSI21xx::getsignalstrength(void)
     agc_th = i2c_read_byte(SI21XX_AGC_THRESHOLD);
     agc_pl = i2c_read_byte(SI21XX_AGC_POWER_LEVEL);
 
+    //strength = ((3 * agc_th * agc_pl) << 4) & 0xffff;
     strength = ((300 * agc_th * agc_pl) << 4) / 0xffff;
 
     return (unsigned short) (strength & 0xffff);
@@ -661,6 +677,8 @@ unsigned short TSI21xx::getsnr(void)
     xsnr = 3 * (xsnr - 0xa100);
     snr = (xsnr > 0xffff) ? 0xffff : ((int) xsnr < 0) ? 0 : xsnr;
     snr *= (100 / 0xffff);
+
+    //qDebug("SNR: %d [%s:%d]", (int) snr, __FILE__, __LINE__);
 
     return (unsigned short) (snr & 0xffff);
 }

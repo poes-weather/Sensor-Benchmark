@@ -19,11 +19,11 @@
      <x>10</x>
      <y>0</y>
      <width>681</width>
-     <height>401</height>
+     <height>431</height>
     </rect>
    </property>
    <property name="currentIndex">
-    <number>1</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="tab">
     <attribute name="title">
@@ -174,7 +174,7 @@
         </item>
         <item>
          <property name="text">
-          <string>Search None</string>
+          <string>Disabled</string>
          </property>
         </item>
        </widget>
@@ -210,7 +210,7 @@
       <item row="3" column="0">
        <widget class="QLabel" name="label_5">
         <property name="text">
-         <string>LNB LO Frequency [MHz]</string>
+         <string>LO Frequency [MHz]</string>
         </property>
        </widget>
       </item>
@@ -338,8 +338,14 @@
        <x>0</x>
        <y>0</y>
        <width>631</width>
-       <height>341</height>
+       <height>371</height>
       </rect>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>371</height>
+      </size>
      </property>
      <property name="currentIndex">
       <number>0</number>
@@ -354,7 +360,7 @@
          <x>10</x>
          <y>10</y>
          <width>591</width>
-         <height>299</height>
+         <height>315</height>
         </rect>
        </property>
        <layout class="QGridLayout" name="gridLayout_4">
@@ -380,7 +386,7 @@
            </font>
           </property>
           <property name="text">
-           <string>Acqusition Errors: 0x0080</string>
+           <string>Acqusition Errors: 0x0000</string>
           </property>
          </widget>
         </item>
@@ -408,7 +414,7 @@
         <item row="2" column="1">
          <widget class="QCheckBox" name="agcfCb">
           <property name="text">
-           <string>AGC Search Failed</string>
+           <string>AGC Gain control limit reached</string>
           </property>
          </widget>
         </item>
@@ -422,7 +428,7 @@
         <item row="3" column="1">
          <widget class="QCheckBox" name="cefCb">
           <property name="text">
-           <string>Carrier Estimation Search Failed</string>
+           <string>Carrier offset not found</string>
           </property>
          </widget>
         </item>
@@ -515,8 +521,74 @@
      </widget>
      <widget class="QWidget" name="tab_6">
       <attribute name="title">
-       <string>Tab 2</string>
+       <string>Signal</string>
       </attribute>
+      <widget class="QWidget" name="">
+       <property name="geometry">
+        <rect>
+         <x>120</x>
+         <y>50</y>
+         <width>361</width>
+         <height>81</height>
+        </rect>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_3">
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_9">
+          <property name="text">
+           <string>Signal:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QProgressBar" name="signaPGB">
+          <property name="minimumSize">
+           <size>
+            <width>251</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="value">
+           <number>0</number>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_10">
+          <property name="text">
+           <string>SNR:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QProgressBar" name="snrPGB">
+          <property name="value">
+           <number>0</number>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_11">
+          <property name="text">
+           <string>BER:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QLabel" name="berLabel">
+          <property name="font">
+           <font>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>0</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
      </widget>
     </widget>
    </widget>

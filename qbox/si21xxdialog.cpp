@@ -19,7 +19,7 @@
     Web: <http://www.poes-weather.com>
 */
 //---------------------------------------------------------------------------
-
+#include <QTimer>
 #include <QSettings>
 #include <QFile>
 #include <QMessageBox>
@@ -37,7 +37,10 @@ SI21xxDialog::SI21xxDialog(QWidget *parent) :
     ui->setupUi(this);
 
     si21xx = new TSI21xx;
+    si_timer = new QTimer(this);
+    si_timer->setInterval(50);
 
+    connect(si_timer, SIGNAL(timeout()), this, SLOT(onSIReadWrite()));
     connect(this, SIGNAL(finished(int)), this, SLOT(onSI21xxDialog_finished(int)));
 
     enablecontrols(false);
@@ -49,11 +52,22 @@ SI21xxDialog::~SI21xxDialog()
     delete ui;
 
     delete si21xx;
+
+    delete si_timer;
+}
+
+//---------------------------------------------------------------------------
+void SI21xxDialog::onSIReadWrite(void)
+{
+    if(si21xx->isOpen())
+        status();
 }
 
 //---------------------------------------------------------------------------
 void SI21xxDialog::onSI21xxDialog_finished(int)
 {
+    si_timer->stop();
+
     si21xx->i2c_close();
 
     // qDebug("onSI21xxDialog_finished(...)");
@@ -71,6 +85,8 @@ void SI21xxDialog::enablecontrols(bool enb)
 //---------------------------------------------------------------------------
 void SI21xxDialog::on_openDevBtn_clicked()
 {
+    si_timer->stop();
+
     if(si21xx->isOpen()) {
         si21xx->i2c_close();
         enablecontrols(false);
@@ -102,8 +118,12 @@ void SI21xxDialog::on_openDevBtn_clicked()
     // Tune Tab
     ui->csrCB->setCurrentIndex((int) si21xx->carrier_search_range());
     ui->loSB->setValue(si21xx->lnb_lo());
+    ui->freqSB->setValue(si21xx->frequency() + si21xx->lnb_lo());
+    ui->symbolrateSB->setValue(si21xx->symbolrate() * 1.0e-3);
 
     enablecontrols(true);
+
+    si_timer->start();
 }
 
 //---------------------------------------------------------------------------
@@ -117,7 +137,7 @@ void SI21xxDialog::on_tuneBtn_clicked()
     si21xx->carrier_search_range((carrier_search_range_t) ui->csrCB->currentIndex());
     si21xx->lnb_lo(ui->loSB->value());
 
-    if(!si21xx->tune(ui->freqSB->value(), ui->symbolrateSB->value() / 1000.0)) {
+    if(!si21xx->tune(ui->freqSB->value(), ui->symbolrateSB->value() * 1.0e-3)) {
         QMessageBox::critical(this, "Error!", "Failed to tune! Check input parameters!");
         return;
     }
@@ -133,7 +153,7 @@ void SI21xxDialog::on_tuneBtn_clicked()
         lock_status = si21xx->getlockstatus();
         acq_status  = si21xx->getacqusitionstatus();
 
-        qDebug("%03d: Lock status: 0x%04x, Acqusiotion status: 0x%04x", i, lock_status, acq_status);
+        qDebug("%03d: Lock status: 0x%04x, Acqusiotion errors: 0x%04x", i, lock_status, acq_status);
         delay(100);
 
         if((lock_status & LOCK_RCV_LOCK) || (acq_status & ACQ_ACQ_FAIL))
@@ -141,6 +161,50 @@ void SI21xxDialog::on_tuneBtn_clicked()
     }
 
     qDebug("Locked %s", (lock_status & LOCK_RCV_LOCK) ? "YES":"NO");
+
+    status();
 }
 
 //---------------------------------------------------------------------------
+void SI21xxDialog::status(void)
+{
+    QString str;
+    unsigned short lock_status, acq_status;
+
+    lock_status = si21xx->getlockstatus();
+    acq_status  = si21xx->getacqusitionstatus();
+
+    str.sprintf("Lock Status: 0x%04x", lock_status);
+    ui->lockstatusLabel->setText(str);
+    str.sprintf("Acqusition Errors: 0x%04x", acq_status);
+    ui->acqusitionstatusLabel->setText(str);
+
+    ui->agclCb->setChecked(lock_status & LOCK_AGC_DONE ? true:false);
+    ui->celCb->setChecked(lock_status & LOCK_CE_DONE ? true:false);
+    ui->srlCb->setChecked(lock_status & LOCK_SR_DONE ? true:false);
+    ui->stlCb->setChecked(lock_status & LOCK_ST_LOCK ? true:false);
+    ui->crlCb->setChecked(lock_status & LOCK_CR_LOCK ? true:false);
+    ui->vtlCb->setChecked(lock_status & LOCK_VT_LOCK ? true:false);
+    ui->fslCb->setChecked(lock_status & LOCK_FS_LOCK ? true:false);
+    ui->rcvlCb->setChecked(lock_status & LOCK_RCV_LOCK ? true:false);
+    ui->bsdaCb->setChecked(lock_status & LOCK_BSD_READY ? true:false);
+    ui->bsdoCb->setChecked(lock_status & LOCK_BS_DONE ? true:false);
+
+    ui->aqfCb->setChecked(acq_status & ACQ_ACQ_FAIL ? true:false);
+    ui->agcfCb->setChecked(acq_status & ACQ_AGC_FAIL ? true:false);
+    ui->cefCb->setChecked(acq_status & ACQ_CE_FAIL ? true:false);
+    ui->srfCb->setChecked(acq_status & ACQ_SR_FAIL ? true:false);
+    ui->stfCb->setChecked(acq_status & ACQ_ST_FAIL ? true:false);
+    ui->crfCb->setChecked(acq_status & ACQ_CR_FAIL ? true:false);
+    ui->vtfCb->setChecked(acq_status & ACQ_VT_FAIL ? true:false);
+    ui->fsfCb->setChecked(acq_status & ACQ_FS_FAIL ? true:false);
+
+    ui->signaPGB->setValue(si21xx->getsignalstrength());
+    ui->snrPGB->setValue(si21xx->getsnr());
+
+    str.sprintf("%d", (int) si21xx->getber());
+    ui->berLabel->setText(str);
+}
+
+//---------------------------------------------------------------------------
+

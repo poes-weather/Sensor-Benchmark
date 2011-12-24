@@ -148,11 +148,13 @@ public:
     bool   lnb_voltage(bool volt_13 = true);
     double lnb_lo(void) const    { return lnb_lo_; }
     void   lnb_lo(double lo_mhz) { lnb_lo_ = lo_mhz; }
+    double frequency(void) { return current_freq; } // mhz
+    double symbolrate(void) { return current_symbol_rate; } // msps
 
     carrier_search_range_t carrier_search_range(void);
     bool carrier_search_range(carrier_search_range_t new_csr);
 
-    bool tune(double freq_mhz, double symbol_rate_sps);
+    bool tune(double freq_mhz, double symbol_rate_msps);
 
     unsigned short getlockstatus(void);
     unsigned short getacqusitionstatus(void);
