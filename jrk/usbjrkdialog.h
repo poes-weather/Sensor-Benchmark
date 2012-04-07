@@ -37,6 +37,7 @@ class QTimer;
 class TUSB;
 class TUSBDevice;
 class TJrkUSB;
+class JrkPlotDialog;
 
 class USBJrkDialog : public QDialog
 {
@@ -77,6 +78,8 @@ private slots:
 
     void on_velocityBtn_clicked();
 
+    void on_plotButton_clicked();
+
 protected:
     void readSettings(void);
     void writeSettings(void);
@@ -99,6 +102,7 @@ private:
     TUSB *usb;
     TUSBDevice    *jrk;
     TJrkUSB       *jrkusb;
+    JrkPlotDialog *jrkPlot;
     jrk_variables vars;
     unsigned char *iobuffer;
     unsigned long timer_loop;

@@ -33,6 +33,7 @@
 #include "tusb.h"
 #include "usbdevice.h"
 #include "jrkusb.h"
+#include "jrkplotdialog.h"
 
 //---------------------------------------------------------------------------
 #define WF_INIT               1
@@ -73,17 +74,18 @@ USBJrkDialog::USBJrkDialog(QString _ini, QWidget *parent) :
 
     ui->accCb->setCurrentIndex(1);
 
-    jrk_timer = new QTimer(this);
-    jrk_timer->setInterval(10);
-    connect(jrk_timer, SIGNAL(timeout()), this, SLOT(onJrkReadWrite()));
-    connect(this, SIGNAL(finished(int)), this, SLOT(onJrkDialog_finished(int)));
-
     jrk = NULL;
     wFlags = 0;
 
     iobuffer = (unsigned char *) malloc(JRK_IO_BUF_SIZE);
     usb = new TUSB();
     jrkusb = new TJrkUSB;
+    jrkPlot = new JrkPlotDialog(&vars, this);
+
+    jrk_timer = new QTimer(this);
+    jrk_timer->setInterval(10);
+    connect(jrk_timer, SIGNAL(timeout()), this, SLOT(onJrkReadWrite()));
+    connect(this, SIGNAL(finished(int)), this, SLOT(onJrkDialog_finished(int)));
 
     on_refreshBtn_clicked();
 }
@@ -97,6 +99,11 @@ USBJrkDialog::~USBJrkDialog()
     free(iobuffer);
 
     delete jrk_timer;
+
+    if(jrkPlot->isVisible())
+        jrkPlot->close();
+
+    delete jrkPlot;
 
     delete ui;
 }
@@ -577,7 +584,7 @@ void USBJrkDialog::on_pushButton_clicked()
     while(i <= ui->targetSlider->maximum()) {
         ui->targetSlider->setValue(i);
 
-        usleep(10);
+        //usleep(10);
 
         jrk->control_transfer(JRK_REQUEST_GET_TYPE, JRK_REQUEST_GET_VARIABLES, 0, 0, (char *)iobuffer, sizeof(jrk_variables_t));
         v = *(jrk_variables *) iobuffer;
@@ -726,6 +733,7 @@ void USBJrkDialog::on_applyPIDBtn_clicked()
 //---------------------------------------------------------------------------
 void USBJrkDialog::on_pidPropMultSb_valueChanged(int /* arg1 */)
 {
+    calcProportional();
 }
 
 //---------------------------------------------------------------------------
@@ -846,6 +854,15 @@ void USBJrkDialog::on_velocityBtn_clicked()
     }
 
     ui->velocityBtn->setText(wFlags & WF_VELOCITY ? "Stop":"Start");
+}
+
+//---------------------------------------------------------------------------
+void USBJrkDialog::on_plotButton_clicked()
+{
+    if(!jrkPlot->isVisible()) {
+        jrkPlot->show();
+        jrkPlot->run();
+    }
 }
 
 //---------------------------------------------------------------------------

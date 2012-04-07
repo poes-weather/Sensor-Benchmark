@@ -249,6 +249,13 @@
         </property>
        </widget>
       </item>
+      <item row="0" column="1">
+       <widget class="QPushButton" name="plotButton">
+        <property name="text">
+         <string>Plot variables</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </item>
     <item row="3" column="0" colspan="2">
@@ -260,7 +267,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -579,6 +586,9 @@
          </item>
          <item row="3" column="3">
           <widget class="QPushButton" name="pushButton">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="text">
             <string>Record LUT</string>
            </property>
@@ -911,8 +921,11 @@
          </item>
          <item row="2" column="2">
           <widget class="QSpinBox" name="pidIntExpSb">
+           <property name="minimum">
+            <number>3</number>
+           </property>
            <property name="maximum">
-            <number>16</number>
+            <number>18</number>
            </property>
           </widget>
          </item>

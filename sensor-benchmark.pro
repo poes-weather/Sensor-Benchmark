@@ -21,7 +21,8 @@ SOURCES += main.cpp \
     usb/tusb.cpp \
     usb/usbdevice.cpp \
     jrk/usbjrkdialog.cpp \
-    jrk/jrkusb.cpp
+    jrk/jrkusb.cpp \
+    jrk/jrkplotdialog.cpp
 HEADERS += mainwindow.h \
     qextserialport/qextserialport.h \
     gauge/gauge.h \
@@ -40,7 +41,8 @@ HEADERS += mainwindow.h \
     usb/usbdevice.h \
     jrk/usbjrkdialog.h \
     jrk/jrk_protocol.h \
-    jrk/jrkusb.h
+    jrk/jrkusb.h \
+    jrk/jrkplotdialog.h
 FORMS += mainwindow.ui \
     gps/gpsdialog.ui \
     inclinometer/inclinometerdialog.ui \
@@ -48,7 +50,8 @@ FORMS += mainwindow.ui \
     qbox/qboxdialog.ui \
     oceanserver/osdialog.ui \
     qbox/si21xxdialog.ui \
-    jrk/usbjrkdialog.ui
+    jrk/usbjrkdialog.ui \
+    jrk/jrkplotdialog.ui
 
 INCLUDEPATH += gauge \
     qextserialport \
@@ -62,13 +65,15 @@ INCLUDEPATH += gauge \
 #DEFINES += DEBUG_GPS
 
 DEFINES += SENSOR_BENCHMARK
-
+CONFIG += qwt
 
 unix {
    DEFINES += _TTY_LINUX_
 
    SOURCES += qextserialport/posix_qextserialport.cpp
-   INCLUDEPATH += /usr/include
+   INCLUDEPATH += \
+                /usr/include \
+                /usr/local/qwt-6.0.2-svn/include
    LIBS += -lusb
 }
 
@@ -77,3 +82,6 @@ win32 {
 }
 
 RESOURCES += resource.qrc
+
+
+
