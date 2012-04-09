@@ -6,30 +6,24 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>707</width>
-    <height>446</height>
+    <width>873</width>
+    <height>526</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Jrk Variables vs. Time</string>
   </property>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>20</y>
-     <width>649</width>
-     <height>415</height>
+     <y>10</y>
+     <width>723</width>
+     <height>490</height>
     </rect>
    </property>
    <layout class="QGridLayout" name="mainLayout">
-    <property name="leftMargin">
-     <number>5</number>
-    </property>
-    <property name="rightMargin">
-     <number>5</number>
-    </property>
-    <property name="bottomMargin">
+    <property name="margin">
      <number>5</number>
     </property>
     <item row="0" column="0" colspan="3">
@@ -52,7 +46,7 @@
     <item row="1" column="2">
      <widget class="QPushButton" name="settingsButton">
       <property name="enabled">
-       <bool>false</bool>
+       <bool>true</bool>
       </property>
       <property name="text">
        <string>Properties...</string>

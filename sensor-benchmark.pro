@@ -22,7 +22,8 @@ SOURCES += main.cpp \
     usb/usbdevice.cpp \
     jrk/usbjrkdialog.cpp \
     jrk/jrkusb.cpp \
-    jrk/jrkplotdialog.cpp
+    jrk/jrkplotdialog.cpp \
+    jrk/jrkplotsettingsdialog.cpp
 HEADERS += mainwindow.h \
     qextserialport/qextserialport.h \
     gauge/gauge.h \
@@ -42,7 +43,8 @@ HEADERS += mainwindow.h \
     jrk/usbjrkdialog.h \
     jrk/jrk_protocol.h \
     jrk/jrkusb.h \
-    jrk/jrkplotdialog.h
+    jrk/jrkplotdialog.h \
+    jrk/jrkplotsettingsdialog.h
 FORMS += mainwindow.ui \
     gps/gpsdialog.ui \
     inclinometer/inclinometerdialog.ui \
@@ -51,7 +53,8 @@ FORMS += mainwindow.ui \
     oceanserver/osdialog.ui \
     qbox/si21xxdialog.ui \
     jrk/usbjrkdialog.ui \
-    jrk/jrkplotdialog.ui
+    jrk/jrkplotdialog.ui \
+    jrk/jrkplotsettingsdialog.ui
 
 INCLUDEPATH += gauge \
     qextserialport \
@@ -82,6 +85,9 @@ win32 {
 }
 
 RESOURCES += resource.qrc
+
+
+
 
 
 

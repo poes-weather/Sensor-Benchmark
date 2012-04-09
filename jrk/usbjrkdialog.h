@@ -19,8 +19,6 @@
     Web: <http://www.poes-weather.com>
 */
 //---------------------------------------------------------------------------
-
-
 #ifndef USBJRKDIALOG_H
 #define USBJRKDIALOG_H
 
@@ -28,10 +26,12 @@
 #include <QDateTime>
 #include "jrk_protocol.h"
 
-namespace Ui {
-    class USBJrkDialog;
-}
-
+typedef struct jrk_pid_variables_t
+{
+    int period; // ms
+    int integral; // sum of the error over all PID cycles
+    int P, I, D;
+} jrk_pid_variables;
 
 class QTimer;
 class TUSB;
@@ -39,6 +39,11 @@ class TUSBDevice;
 class TJrkUSB;
 class JrkPlotDialog;
 
+namespace Ui {
+    class USBJrkDialog;
+}
+
+//---------------------------------------------------------------------------
 class USBJrkDialog : public QDialog
 {
     Q_OBJECT
@@ -103,7 +108,10 @@ private:
     TUSBDevice    *jrk;
     TJrkUSB       *jrkusb;
     JrkPlotDialog *jrkPlot;
+
     jrk_variables vars;
+    jrk_pid_variables pid_vars;
+
     unsigned char *iobuffer;
     unsigned long timer_loop;
     unsigned short last_err;

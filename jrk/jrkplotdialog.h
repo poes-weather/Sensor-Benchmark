@@ -26,6 +26,22 @@
 #include <vector>
 #include "jrk_protocol.h"
 
+/*
+typedef enum jrk_curve_t
+{
+    curve_input = 0,
+    curve_target,
+    curve_feedback,
+    curve_scaled_feedback,
+    curve_error,
+    curve_integral,
+    curve_derivative,
+    curve_duty_cycle_target,
+    curve_duty_cycle,
+    curve_current
+} jrk_curve;
+*/
+
 using namespace std;
 namespace Ui {
     class JrkPlotDialog;
@@ -48,6 +64,22 @@ public:
 
     void run(void);
 
+    vector<JrkPlotData *> jrkdata;
+
+    enum jrk_curve
+    {
+        curve_input = 0,
+        curve_target,
+        curve_feedback,
+        curve_scaled_feedback,
+        curve_error,
+        curve_integral,
+        curve_derivative,
+        curve_duty_cycle_target,
+        curve_duty_cycle,
+        curve_current
+    };
+
 private slots:
     void onUpdateGraph(void);
     void onFinished(int result);
@@ -55,58 +87,26 @@ private slots:
 
 private Q_SLOTS:
     void showCurve(QwtPlotItem *, bool on);
-
     void on_stopButton_clicked();
+
+    void on_settingsButton_clicked();
 
 private:
     Ui::JrkPlotDialog *ui;
     QTimer *plot_timer;
 
     jrk_variables *data_ptr;
-    vector<JrkPlotData *> jrkdata;
 
     double *timeData;
     int    dataCount;
 
     void createCurve(QString title, QColor cl, bool on, double scale);
     void setCurveData(int curve_id, int data_id, double value);
+    void setCurveIntegral(int data_id, double value);
+    void setCurveDerivative(int data_id, double current_error);
+
     void reset(void);
 };
-
-#if 0
-//---------------------------------------------------------------------------
-class JrkPlot : public QwtPlot
-{
-    Q_OBJECT
-
-public:
-    JrkPlot(QwtPlot *plot_, jrk_variables *indata);
-    ~JrkPlot(void);
-
-    /*
-    const QwtPlotCurve *cpuCurve( int id ) const
-    {
-        return data[id].curve;
-    }
-    */
-
-protected:
-    void timerEvent(QTimerEvent *e);
-
-private Q_SLOTS:
-    void showCurve(QwtPlotItem *, bool on);
-
-private:
-    jrk_variables *data_ptr;
-    vector<JrkPlotData *> jrkdata;
-
-    double *timeData;
-    int    dataCount;
-
-    void createCurve(QString title, QColor cl, bool on, double scale);
-
-};
-#endif
 
 //---------------------------------------------------------------------------
 class JrkPlotData

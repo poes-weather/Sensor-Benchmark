@@ -32,10 +32,13 @@
 #include <qwt_legend_item.h>
 #include <qwt_plot_canvas.h>
 #include <qwt_plot_grid.h>
+#include "jrkplotsettingsdialog.h"
+
 
 const int INTERVAL = 500; // msec
-const int HISTORY = 11;
+const int HISTORY = 11; // seconds
 const int SAMPLES = HISTORY * 1000/INTERVAL;
+
 
 //---------------------------------------------------------------------------
 JrkPlotDialog::JrkPlotDialog(jrk_variables *indata, QWidget *parent) :
@@ -69,28 +72,6 @@ JrkPlotDialog::JrkPlotDialog(jrk_variables *indata, QWidget *parent) :
     i = QFontMetrics(scaleWidget->font()).height();
     scaleWidget->setMinBorderDist(0, i / 2);
 
-    // ui->jrkPlot->setAxisScaleDraw( QwtPlot::xBottom, new TimeScaleDraw( cpuStat.upTime() ) );
-#if 0
-    setAxisTitle(QwtPlot::xBottom, " System Uptime [h:m:s]" );
-    setAxisScaleDraw( QwtPlot::xBottom, new TimeScaleDraw( cpuStat.upTime() ) );
-    setAxisScale( QwtPlot::xBottom, 0, HISTORY );
-    setAxisLabelRotation( QwtPlot::xBottom, -50.0 );
-    setAxisLabelAlignment( QwtPlot::xBottom, Qt::AlignLeft | Qt::AlignBottom );
-
-/*
-     In situations, when there is a label at the most right position of the
-     scale, additional space is needed to display the overlapping part
-     of the label would be taken by reducing the width of scale and canvas.
-     To avoid this "jumping canvas" effect, we add a permanent margin.
-     We don't need to do the same for the left border, because there
-     is enough space for the overlapping label below the left scale.
-     */
-
-    QwtScaleWidget *scaleWidget = axisWidget( QwtPlot::xBottom );
-    const int fmh = QFontMetrics( scaleWidget->font() ).height();
-    scaleWidget->setMinBorderDist( 0, fmh / 2 );
-#endif
-
     ui->jrkPlot->setAxisTitle(QwtPlot::yLeft, "%");
     ui->jrkPlot->setAxisScale(QwtPlot::yLeft, -100, 100);
 
@@ -104,13 +85,14 @@ JrkPlotDialog::JrkPlotDialog(jrk_variables *indata, QWidget *parent) :
     // curves, scale is in %
     createCurve("Input",                Qt::gray,           false,  100.0/4095.0);
     createCurve("Target",               Qt::blue,           true,   100.0/4095.0);
-    createCurve("Feedback",             Qt::darkBlue,       true,   100.0/4095.0);
+    createCurve("Feedback",             Qt::darkBlue,       false,  100.0/4095.0);
     createCurve("Scaled feedback",      Qt::magenta,        true,   100.0/4095.0);
     createCurve("Error",                Qt::red,            true,   100.0/4095);
     createCurve("Integral",             Qt::darkGreen,      false,  100.0/1000.0);
+    createCurve("Derivative",           Qt::darkGreen,      false,  100.0/4095.0);
     createCurve("Duty cycle target",    Qt::darkCyan,       true,   100.0/600.0);
-    createCurve("Duty cycle",           Qt::darkRed,        true,   100.0/600.0);
-    createCurve("Current",              Qt::black,          true,   100.0/5000.0);
+    createCurve("Duty cycle",           Qt::darkRed,        false,  100.0/600.0);
+    createCurve("Current",              Qt::black,          false,  100.0/5000.0);
 
     plot_timer = new QTimer(this);
     plot_timer->setInterval(INTERVAL);
@@ -183,18 +165,6 @@ void JrkPlotDialog::showCurve(QwtPlotItem *item, bool on)
 }
 
 //---------------------------------------------------------------------------
-/*
-createCurve("Input", Qt::lightGray, false, 100/4095);
-createCurve("Target", Qt::blue, true, 100/4095);
-createCurve("Feedback", Qt::darkBlue, false, 100/4095);
-createCurve("Scaled feedback", Qt::magenta, false, 100/4095);
-createCurve("Error", Qt::red, false, 100/1024);
-createCurve("Integral", Qt::darkGreen, false, 100/1000);
-createCurve("Duty cycle target", Qt::darkCyan, false, 100/600);
-createCurve("Duty cycle", Qt::darkMagenta, false, 100/600);
-createCurve("Current", Qt::darkGray, false, 100/5000);
-*/
-
 void JrkPlotDialog::onUpdateGraph()
 {
     JrkPlotData *curve;
@@ -219,18 +189,18 @@ void JrkPlotDialog::onUpdateGraph()
 
     // qDebug("fb= %d sfb = %d", data_ptr->feedback, data_ptr->scaledFeedback);
 
-    i=0;
-    setCurveData(i++, dataCount, data_ptr->input);
-    setCurveData(i++, dataCount, data_ptr->target);
-    setCurveData(i++, dataCount, data_ptr->feedback);
-    setCurveData(i++, dataCount, data_ptr->scaledFeedback);
-    setCurveData(i++, dataCount, data_ptr->scaledFeedback - data_ptr->target);
-    setCurveData(i++, dataCount, 0); // integral
-    setCurveData(i++, dataCount, data_ptr->dutyCycleTarget);
-    setCurveData(i++, dataCount, data_ptr->dutyCycle);
-    setCurveData(i++, dataCount, data_ptr->current);
+    setCurveData(curve_input,               dataCount, data_ptr->input);
+    setCurveData(curve_target,              dataCount, data_ptr->target);
+    setCurveData(curve_feedback,            dataCount, data_ptr->feedback);
+    setCurveData(curve_scaled_feedback,     dataCount, data_ptr->scaledFeedback);
+    setCurveData(curve_error,               dataCount, data_ptr->scaledFeedback - data_ptr->target);
+    setCurveData(curve_integral,            dataCount, 0);
+    setCurveData(curve_derivative,          dataCount, data_ptr->scaledFeedback - data_ptr->target);
+    setCurveData(curve_duty_cycle_target,   dataCount, data_ptr->dutyCycleTarget);
+    setCurveData(curve_duty_cycle,          dataCount, data_ptr->dutyCycle);
+    setCurveData(curve_current,             dataCount, data_ptr->current);
 
-    if(dataCount < SAMPLES) //HISTORY)
+    if(dataCount < SAMPLES)
         dataCount++;
 
     for(j=0; j<(signed) jrkdata.size(); j++) {
@@ -253,6 +223,39 @@ void JrkPlotDialog::setCurveData(int curve_id, int data_id, double value)
 #if 1
         qDebug("curve id: %d, data %f%%, value: %f", curve_id, curve->data[data_id], value);
 #endif
+    }
+}
+
+//---------------------------------------------------------------------------
+// integral is computed as the sum of the error over all PID cycles
+void JrkPlotDialog::setCurveIntegral(int data_id, double value)
+{
+    JrkPlotData *curve;
+
+    curve = (JrkPlotData *)jrkdata.at(curve_integral);
+    if(curve) {
+        // todo
+        curve->setValue(value, data_id);
+    }
+}
+
+//---------------------------------------------------------------------------
+// derivative is current error minus the previous error
+void JrkPlotDialog::setCurveDerivative(int data_id, double current_error)
+{
+    JrkPlotData *e_curve, *d_curve;
+    double v;
+
+    e_curve = (JrkPlotData *)jrkdata.at(curve_error);
+    d_curve = (JrkPlotData *)jrkdata.at(curve_derivative);
+
+    if(e_curve && d_curve) {
+        if(data_id > 0)
+            v = current_error * e_curve->scale - e_curve->data[data_id -1];
+        else
+            v = 0;
+
+        d_curve->setValue(v, data_id);
     }
 }
 
@@ -323,6 +326,16 @@ void JrkPlotDialog::on_stopButton_clicked()
         plot_timer->start();
         ui->stopButton->setText("Stop");
     }
+
+}
+
+//---------------------------------------------------------------------------
+void JrkPlotDialog::on_settingsButton_clicked()
+{
+    plot_timer->stop();
+
+    JrkPlotSettingsDialog dlg(this);
+    dlg.exec();
 
 }
 

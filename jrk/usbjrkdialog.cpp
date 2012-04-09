@@ -172,6 +172,11 @@ void USBJrkDialog::onJrkReadWrite(void)
     double delta, delta2;
     int target;
 
+    pid_vars.period = ui->pidPeriodSb->value();
+    pid_vars.integral = ui->pidIntegralLimitSb->value();
+
+
+
     if(!jrk->control_transfer(JRK_REQUEST_GET_TYPE, JRK_REQUEST_GET_VARIABLES, 0, 0, (char *)iobuffer, sizeof(jrk_variables_t)))
         return;
 
@@ -858,10 +863,10 @@ void USBJrkDialog::on_velocityBtn_clicked()
 
 //---------------------------------------------------------------------------
 void USBJrkDialog::on_plotButton_clicked()
-{
-    if(!jrkPlot->isVisible()) {
+{        
+    if(/*jrk && */ !jrkPlot->isVisible()) {
         jrkPlot->show();
-        jrkPlot->run();
+        //jrkPlot->run();
     }
 }
 
