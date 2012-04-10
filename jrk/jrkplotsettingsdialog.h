@@ -42,12 +42,23 @@ public:
 
 private slots:
     void on_inputTb_clicked();
+    void on_targetTb_clicked();
+    void on_feedbackTb_clicked();
+    void on_scaledfeedbackTb_clicked();
+    void on_errorTb_clicked();
+    void on_integralTb_clicked();
+    void on_derivativeTb_clicked();
+    void on_dutycycletargetTb_clicked();
+    void on_dutycycletTb_clicked();
+    void on_currentTb_clicked();
+
+    void on_buttonBox_accepted();
 
 private:
     Ui::JrkPlotSettingsDialog *ui;
     JrkPlotDialog *plotdlg;
 
-    void setProperties(int index);
+    void curveProperties(bool set);
     void setButtonColor(QToolButton *tb, QColor cl, bool select);
     QColor buttonColor(QToolButton *tb);
 };

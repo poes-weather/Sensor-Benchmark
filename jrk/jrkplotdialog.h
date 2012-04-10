@@ -64,7 +64,15 @@ public:
 
     void run(void);
 
+    int  interval(void)     { return INTERVAL; }
+    void interval(int msec) { INTERVAL = msec; }
+    int  history(void)      { return HISTORY; }
+    void history(int sec)   { HISTORY = sec; }
+    int  samples(void)      { return SAMPLES; }
+    void setSamples(void)   { SAMPLES = HISTORY * 1000/INTERVAL; }
+
     vector<JrkPlotData *> jrkdata;
+    double *timeData;
 
     enum jrk_curve
     {
@@ -97,13 +105,13 @@ private:
 
     jrk_variables *data_ptr;
 
-    double *timeData;
+    int    INTERVAL, HISTORY, SAMPLES;
     int    dataCount;
 
     void createCurve(QString title, QColor cl, bool on, double scale);
     void setCurveData(int curve_id, int data_id, double value);
     void setCurveIntegral(int data_id, double value);
-    void setCurveDerivative(int data_id, double current_error);
+    void setCurveDerivative(int data_id);
 
     void reset(void);
 };
@@ -112,7 +120,7 @@ private:
 class JrkPlotData
 {
 public:
-    JrkPlotData(QwtPlotCurve *curve_, double scale_);
+    JrkPlotData(QwtPlotCurve *curve_, double scale_, int samples);
     ~JrkPlotData(void);
 
     void setValue(double value, int index);

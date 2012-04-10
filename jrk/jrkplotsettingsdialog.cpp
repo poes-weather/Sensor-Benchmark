@@ -19,12 +19,12 @@
     Web: <http://www.poes-weather.com>
 */
 //---------------------------------------------------------------------------
-#include <QColorDialog>
 
 #include "jrkplotsettingsdialog.h"
 #include "ui_jrkplotsettingsdialog.h"
 #include "jrkplotdialog.h"
 
+#include <QColorDialog>
 #include <qwt_plot_curve.h>
 
 //---------------------------------------------------------------------------
@@ -32,28 +32,16 @@ JrkPlotSettingsDialog::JrkPlotSettingsDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::JrkPlotSettingsDialog)
 {
-    int i;
 
     ui->setupUi(this);
+    setLayout(ui->mainLayout);
 
     plotdlg = (JrkPlotDialog *) parent;
 
-    for(i=0; i<(signed) plotdlg->jrkdata.size(); i++)
-        setProperties(i);
+    ui->historySb->setValue(plotdlg->history());
+    ui->intervalSb->setValue(plotdlg->interval());
 
-#if 0
-    data = (JrkPlotData *)plotdlg->jrkdata.at(0);
-    QColor cl = data->curve->pen().color();
-
-    QString str;
-    str.sprintf("QToolButton { background-color: rgb(%d,%d,%d); }", cl.red(), cl.green(), cl.blue());
-    ui->toolButton->setStyleSheet(str);
-    qDebug(str.toStdString().c_str());
-
-    QPalette pal = ui->toolButton->palette();
-    cl = pal.color(QPalette::Window);
-    qDebug("r:%d g:%d b:%d", cl.red(), cl.green(), cl.blue());
-#endif
+    curveProperties(true);
 }
 
 //---------------------------------------------------------------------------
@@ -63,24 +51,77 @@ JrkPlotSettingsDialog::~JrkPlotSettingsDialog()
 }
 
 //---------------------------------------------------------------------------
-void JrkPlotSettingsDialog::setProperties(int index)
+void JrkPlotSettingsDialog::curveProperties(bool set)
 {
     QToolButton *tb;
     QSpinBox    *sb;
-    JrkPlotData *data = (JrkPlotData *)plotdlg->jrkdata.at(index);
+    JrkPlotData *data;
+    QPen        pen;
+    int         i;
 
-    switch(index) {
-    case JrkPlotDialog::curve_input:
-        tb = ui->inputTb;
-        sb = ui->inputSb;
-        break;
+    for(i=0; i<(signed) plotdlg->jrkdata.size(); i++) {
+        data = (JrkPlotData *)plotdlg->jrkdata.at(i);
 
-    default:
-        return;
+        switch(i) {
+        case JrkPlotDialog::curve_input:
+            tb = ui->inputTb;
+            sb = ui->inputSb;
+            break;
+        case JrkPlotDialog::curve_target:
+            tb = ui->targetTb;
+            sb = ui->targetSb;
+            break;
+        case JrkPlotDialog::curve_feedback:
+            tb = ui->feedbackTb;
+            sb = ui->feedbackSb;
+            break;
+        case JrkPlotDialog::curve_scaled_feedback:
+            tb = ui->scaledfeedbackTb;
+            sb = ui->scaledfeedbackSb;
+            break;
+        case JrkPlotDialog::curve_error:
+            tb = ui->errorTb;
+            sb = ui->errorSb;
+            break;
+        case JrkPlotDialog::curve_integral:
+            tb = ui->integralTb;
+            sb = ui->integralSb;
+            break;
+        case JrkPlotDialog::curve_derivative:
+            tb = ui->derivativeTb;
+            sb = ui->derivativeSb;
+            break;
+        case JrkPlotDialog::curve_duty_cycle:
+            tb = ui->dutycycletTb;
+            sb = ui->dutycycleSb;
+            break;
+        case JrkPlotDialog::curve_duty_cycle_target:
+            tb = ui->dutycycletargetTb;
+            sb = ui->dutycycletargetSb;
+            break;
+        case JrkPlotDialog::curve_current:
+            tb = ui->currentTb;
+            sb = ui->currentSb;
+            break;
+
+        default:
+            return;
+        }
+
+
+        if(set) {
+            sb->setValue(data->scale);
+            setButtonColor(tb, data->curve->pen().color(), false);
+        }
+        else {
+            data->scale = sb->value();
+
+            pen = data->curve->pen();
+            pen.setColor(buttonColor(tb));
+            data->curve->setPen(pen);
+        }
     }
 
-    sb->setValue(100.0/data->scale);
-    setButtonColor(tb, data->curve->pen().color(), false);
 }
 
 //---------------------------------------------------------------------------
@@ -114,3 +155,88 @@ void JrkPlotSettingsDialog::on_inputTb_clicked()
 {
     setButtonColor(ui->inputTb, buttonColor(ui->inputTb), true);
 }
+
+//---------------------------------------------------------------------------
+void JrkPlotSettingsDialog::on_targetTb_clicked()
+{
+    setButtonColor(ui->targetTb, buttonColor(ui->targetTb), true);
+}
+
+//---------------------------------------------------------------------------
+void JrkPlotSettingsDialog::on_feedbackTb_clicked()
+{
+    setButtonColor(ui->feedbackTb, buttonColor(ui->feedbackTb), true);
+}
+
+//---------------------------------------------------------------------------
+void JrkPlotSettingsDialog::on_scaledfeedbackTb_clicked()
+{
+    setButtonColor(ui->scaledfeedbackTb, buttonColor(ui->scaledfeedbackTb), true);
+}
+
+//---------------------------------------------------------------------------
+void JrkPlotSettingsDialog::on_errorTb_clicked()
+{
+    setButtonColor(ui->errorTb, buttonColor(ui->errorTb), true);
+}
+
+//---------------------------------------------------------------------------
+void JrkPlotSettingsDialog::on_integralTb_clicked()
+{
+    setButtonColor(ui->integralTb, buttonColor(ui->integralTb), true);
+}
+
+//---------------------------------------------------------------------------
+void JrkPlotSettingsDialog::on_derivativeTb_clicked()
+{
+    setButtonColor(ui->derivativeTb, buttonColor(ui->derivativeTb), true);
+}
+
+//---------------------------------------------------------------------------
+void JrkPlotSettingsDialog::on_dutycycletargetTb_clicked()
+{
+    setButtonColor(ui->dutycycletargetTb, buttonColor(ui->dutycycletargetTb), true);
+}
+
+//---------------------------------------------------------------------------
+void JrkPlotSettingsDialog::on_dutycycletTb_clicked()
+{
+    setButtonColor(ui->dutycycletTb, buttonColor(ui->dutycycletTb), true);
+}
+
+//---------------------------------------------------------------------------
+void JrkPlotSettingsDialog::on_currentTb_clicked()
+{
+    setButtonColor(ui->currentTb, buttonColor(ui->currentTb), true);
+}
+
+//---------------------------------------------------------------------------
+void JrkPlotSettingsDialog::on_buttonBox_accepted()
+{
+    JrkPlotData *data;
+    int         i;
+
+    curveProperties(false);
+
+    // reallocate vectors
+    if(plotdlg->history() != ui->historySb->value() ||
+       plotdlg->interval() != ui->intervalSb->value())
+    {
+        plotdlg->history(ui->historySb->value());
+        plotdlg->interval(ui->intervalSb->value());
+        plotdlg->setSamples();
+
+        free(plotdlg->timeData);
+        plotdlg->timeData = (double *) malloc(plotdlg->samples() * sizeof(double));
+
+        for(i=0; i<(signed) plotdlg->jrkdata.size(); i++) {
+            data = (JrkPlotData *)plotdlg->jrkdata.at(i);
+
+            free(data->data);
+            data->data = (double *) malloc(plotdlg->samples() * sizeof(double));
+        }
+    }
+
+}
+
+//---------------------------------------------------------------------------

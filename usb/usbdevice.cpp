@@ -118,7 +118,7 @@ void TUSBDevice::close(void)
 bool TUSBDevice::control_transfer(int requesttype, int request, int value, int index, char *bytes, int size)
 {
     if(!handle) {
-        qDebug("Error: No handle [%s:%d]", __FILE__, __LINE__);
+        //qDebug("Error: No handle [%s:%d]", __FILE__, __LINE__);
         return false;
     }
 

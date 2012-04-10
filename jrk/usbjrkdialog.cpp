@@ -77,6 +77,7 @@ USBJrkDialog::USBJrkDialog(QString _ini, QWidget *parent) :
     jrk = NULL;
     wFlags = 0;
 
+    memset(&vars, 0, sizeof(jrk_variables_t));
     iobuffer = (unsigned char *) malloc(JRK_IO_BUF_SIZE);
     usb = new TUSB();
     jrkusb = new TJrkUSB;
