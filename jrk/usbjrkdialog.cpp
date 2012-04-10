@@ -47,6 +47,8 @@
 #define WF_VELOCITY         256
 #define WF_FORWARD          512
 
+static const int TIMER_INTERVAL_MS = 100;
+
 #define RINT(x) (floor(x) + 0.5)
 //---------------------------------------------------------------------------
 USBJrkDialog::USBJrkDialog(QString _ini, QWidget *parent) :
@@ -84,7 +86,7 @@ USBJrkDialog::USBJrkDialog(QString _ini, QWidget *parent) :
     jrkPlot = new JrkPlotDialog(&vars, this);
 
     jrk_timer = new QTimer(this);
-    jrk_timer->setInterval(10);
+    jrk_timer->setInterval(TIMER_INTERVAL_MS); //10;
     connect(jrk_timer, SIGNAL(timeout()), this, SLOT(onJrkReadWrite()));
     connect(this, SIGNAL(finished(int)), this, SLOT(onJrkDialog_finished(int)));
 

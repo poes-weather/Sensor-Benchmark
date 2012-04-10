@@ -22,10 +22,12 @@
 #include <QtGlobal>
 
 #include "usbdevice.h"
+#include "utils.h"
 
 static const int USB_DEFAULT_INTERFACE = 0;
 static const int USB_DEFAULT_CONFIGURATION = 1;
-static const int USB_DEFAULT_TIMEOUT_MS = 5000;
+static const int USB_DEFAULT_TIMEOUT_MS = 1000;
+static const int USB_DELAY_MS = 1;
 
 //---------------------------------------------------------------------------
 TUSBDevice::TUSBDevice()
@@ -98,6 +100,8 @@ bool TUSBDevice::open(void)
 
     isopen_ = true;
 
+    delay(USB_DELAY_MS);
+
     return isopen_;
 }
 
@@ -127,6 +131,8 @@ bool TUSBDevice::control_transfer(int requesttype, int request, int value, int i
 
         return false;
     }
+    else
+        delay(USB_DELAY_MS);
 
     return true;
 }

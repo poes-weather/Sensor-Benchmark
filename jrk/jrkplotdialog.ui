@@ -23,7 +23,16 @@
     </rect>
    </property>
    <layout class="QGridLayout" name="mainLayout">
-    <property name="margin">
+    <property name="leftMargin">
+     <number>5</number>
+    </property>
+    <property name="topMargin">
+     <number>10</number>
+    </property>
+    <property name="rightMargin">
+     <number>5</number>
+    </property>
+    <property name="bottomMargin">
      <number>5</number>
     </property>
     <item row="0" column="0" colspan="3">

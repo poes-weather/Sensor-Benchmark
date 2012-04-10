@@ -26,22 +26,6 @@
 #include <vector>
 #include "jrk_protocol.h"
 
-/*
-typedef enum jrk_curve_t
-{
-    curve_input = 0,
-    curve_target,
-    curve_feedback,
-    curve_scaled_feedback,
-    curve_error,
-    curve_integral,
-    curve_derivative,
-    curve_duty_cycle_target,
-    curve_duty_cycle,
-    curve_current
-} jrk_curve;
-*/
-
 using namespace std;
 namespace Ui {
     class JrkPlotDialog;
@@ -52,6 +36,9 @@ class QwtPlot;
 class QwtPlotCurve;
 class QwtPlotItem;
 class JrkPlotData;
+class QwtPlotPicker;
+class QwtPlotPanner;
+class QwtPlotMagnifier;
 
 //---------------------------------------------------------------------------
 class JrkPlotDialog : public QDialog
@@ -95,13 +82,18 @@ private slots:
 
 private Q_SLOTS:
     void showCurve(QwtPlotItem *, bool on);
-    void on_stopButton_clicked();
+    void picker_moved(const QPoint &pos);
+    void picker_selected(const QPolygon &);
 
+    void on_stopButton_clicked();
     void on_settingsButton_clicked();
 
 private:
     Ui::JrkPlotDialog *ui;
-    QTimer *plot_timer;
+    QTimer           *plot_timer;
+    QwtPlotPicker    *plot_picker;
+    QwtPlotPanner    *plot_panner;
+    QwtPlotMagnifier *plot_zoomer;
 
     jrk_variables *data_ptr;
 

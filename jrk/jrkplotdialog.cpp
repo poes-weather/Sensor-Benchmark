@@ -32,6 +32,14 @@
 #include <qwt_legend_item.h>
 #include <qwt_plot_canvas.h>
 #include <qwt_plot_grid.h>
+#include <qwt_picker_machine.h>
+#include <qwt_plot_zoomer.h>
+#include <qwt_plot_panner.h>
+#include <qwt_plot_renderer.h>
+#include <qwt_plot_magnifier.h>
+#include <qwt_text.h>
+#include <qwt_math.h>
+
 #include "jrkplotsettingsdialog.h"
 
 
@@ -74,6 +82,24 @@ JrkPlotDialog::JrkPlotDialog(jrk_variables *indata, QWidget *parent) :
     ui->jrkPlot->setAxisTitle(QwtPlot::yLeft, "%");
     ui->jrkPlot->setAxisScale(QwtPlot::yLeft, -100, 100);
 
+    // picker, panner, zoomer
+    plot_picker = new QwtPlotPicker(QwtPlot::xBottom, QwtPlot::yLeft,
+                                    QwtPlotPicker::CrossRubberBand, QwtPicker::AlwaysOn,
+                                    ui->jrkPlot->canvas());
+#if 0
+    plot_picker->setStateMachine(new QwtPickerDragPointMachine());
+    plot_picker->setRubberBandPen(QColor(Qt::black));
+    plot_picker->setRubberBand(QwtPicker::CrossRubberBand );
+#endif
+    plot_picker->setTrackerPen(QColor(Qt::black));
+
+    // panning with the left mouse button
+    plot_panner = new QwtPlotPanner(ui->jrkPlot->canvas());
+    plot_panner->setUpdatesEnabled(true);
+
+    // zoom in/out with the wheel
+    plot_zoomer = new QwtPlotMagnifier(ui->jrkPlot->canvas());
+
     // grid
     QwtPlotGrid *grid = new QwtPlotGrid;
     grid->enableXMin( true );
@@ -99,6 +125,14 @@ JrkPlotDialog::JrkPlotDialog(jrk_variables *indata, QWidget *parent) :
     connect(plot_timer, SIGNAL(timeout()), this, SLOT(onUpdateGraph()));
     connect(ui->jrkPlot, SIGNAL(legendChecked(QwtPlotItem *, bool)),
             SLOT(showCurve(QwtPlotItem *, bool)));
+
+#if 0
+    connect(plot_picker, SIGNAL(moved(const QPoint &)),
+            SLOT(picker_moved(const QPoint &)));
+    connect(plot_picker, SIGNAL(selected(const QPolygon &)),
+            SLOT(picker_selected(const QPolygon &)));
+#endif
+
     connect(this, SIGNAL(finished(int)), this, SLOT(onFinished(int)));
 
 //    plot_timer->start();
@@ -116,6 +150,10 @@ JrkPlotDialog::~JrkPlotDialog()
         delete *i;
 
     jrkdata.clear();
+
+    delete plot_picker;
+    delete plot_panner;
+    delete plot_zoomer;
 
     delete ui;
 }
@@ -164,6 +202,24 @@ void JrkPlotDialog::showCurve(QwtPlotItem *item, bool on)
 }
 
 //---------------------------------------------------------------------------
+void JrkPlotDialog::picker_moved(const QPoint &pos)
+{
+    QString info;
+    info.sprintf( "Freq=%g, Ampl=%g, Phase=%g",
+        ui->jrkPlot->invTransform( QwtPlot::xBottom, pos.x() ),
+        ui->jrkPlot->invTransform( QwtPlot::yLeft, pos.y() ),
+        ui->jrkPlot->invTransform( QwtPlot::yRight, pos.y() )
+    );
+
+}
+
+//---------------------------------------------------------------------------
+void JrkPlotDialog::picker_selected(const QPolygon &)
+{
+
+}
+
+//---------------------------------------------------------------------------
 void JrkPlotDialog::onUpdateGraph()
 {
     JrkPlotData *curve;
@@ -184,6 +240,7 @@ void JrkPlotDialog::onUpdateGraph()
 
         timeData[SAMPLES - 1] += v;
         ui->jrkPlot->setAxisScale(QwtPlot::xBottom, timeData[0], timeData[SAMPLES - 1]);
+
     }
 
     // qDebug("fb= %d sfb = %d", data_ptr->feedback, data_ptr->scaledFeedback);
