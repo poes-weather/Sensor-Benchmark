@@ -47,7 +47,7 @@
 #define WF_VELOCITY         256
 #define WF_FORWARD          512
 
-static const int TIMER_INTERVAL_MS = 100;
+static const int TIMER_INTERVAL_MS = 50;
 
 #define RINT(x) (floor(x) + 0.5)
 //---------------------------------------------------------------------------
