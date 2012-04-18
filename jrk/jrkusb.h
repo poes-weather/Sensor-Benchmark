@@ -46,7 +46,10 @@ public:
 
     bool    setTarget(unsigned short target);
     unsigned short target(int mode = 0);
+    unsigned short scaledfeedback(int mode = 0);
     unsigned short feedback(int mode = 0);
+
+    double target2degrees(double t);
 
     QString serialnumber(void) { return sn_; }
     void    stop(void);

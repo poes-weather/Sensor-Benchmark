@@ -47,7 +47,7 @@
 #define WF_VELOCITY         256
 #define WF_FORWARD          512
 
-static const int TIMER_INTERVAL_MS = 50;
+static const int TIMER_INTERVAL_MS = 100;
 
 #define RINT(x) (floor(x) + 0.5)
 //---------------------------------------------------------------------------
@@ -66,8 +66,8 @@ USBJrkDialog::USBJrkDialog(QString _ini, QWidget *parent) :
     ui->scaleddegreesLabel->setText("");
 #endif
 
+    ui->pushButton->setVisible(false);
     ui->degSb->setVisible(false);
-    ui->pushButton->setVisible(true);
 
     minfb = ui->feedbackMinDegSb->value();
     maxfb = ui->feedbackMaxDegSb->value();
@@ -80,10 +80,12 @@ USBJrkDialog::USBJrkDialog(QString _ini, QWidget *parent) :
     wFlags = 0;
 
     memset(&vars, 0, sizeof(jrk_variables_t));
+    memset(&pid_vars, 0, sizeof(jrk_pid_variables_t));
+
     iobuffer = (unsigned char *) malloc(JRK_IO_BUF_SIZE);
     usb = new TUSB();
     jrkusb = new TJrkUSB;
-    jrkPlot = new JrkPlotDialog(&vars, this);
+    jrkPlot = new JrkPlotDialog(&vars, &pid_vars, this);
 
     jrk_timer = new QTimer(this);
     jrk_timer->setInterval(TIMER_INTERVAL_MS); //10;
@@ -172,29 +174,38 @@ void USBJrkDialog::onJrkReadWrite(void)
     QSpinBox *sb;
     QString str;
     double degrees, d_fb, d_deg, sfb;
-    double delta, delta2;
+    double delta, delta2, v;
     int target;
-
-    pid_vars.period = ui->pidPeriodSb->value();
-    pid_vars.integral = ui->pidIntegralLimitSb->value();
-
-
 
     if(!jrk->control_transfer(JRK_REQUEST_GET_TYPE, JRK_REQUEST_GET_VARIABLES, 0, 0, (char *)iobuffer, sizeof(jrk_variables_t)))
         return;
 
+    dt = QDateTime::currentDateTime();
+
     vars = *(jrk_variables *) iobuffer;
 
     toggleErrors();
-
     timer_loop++;
 
+    v = pid_vars.error; // previous error
+    pid_vars.error = vars.scaledFeedback - vars.target;
+    pid_vars.integral = vars.errorSum;
+    pid_vars.derivative = pid_vars.error - v;
+
+
+    // todo...how far off is our current PID
+
+    // other realtime labels
     str.sprintf("%d", vars.feedback);
     ui->feedbackLabel->setText(str);
+    str.sprintf("%d", vars.target);
+    ui->targetLabel->setText(str);
     str.sprintf("%d", vars.scaledFeedback);
     ui->scaledfbLabel->setText(str);
 
-    dt = QDateTime::currentDateTime();
+    str.sprintf("%.0f", pid_vars.error);
+    ui->pidErrorLabel->setText(str);
+
 
     if(wFlags & (WF_GOTO_MIN | WF_GOTO_MAX)) {
         sb = wFlags & WF_GOTO_MIN ? ui->feedbackMinDegSb:ui->feedbackMaxDegSb;
@@ -203,9 +214,9 @@ void USBJrkDialog::onJrkReadWrite(void)
 
     if(!(wFlags & WF_CALIBRATING)) {
         d_deg = maxdeg - mindeg;
+        d_fb = maxfb - minfb;
         current_deg = 0;
 
-        d_fb  = maxfb - minfb;
         if(d_fb > 0 && d_deg > 0) {
             sfb = vars.feedback - minfb;
             degrees = mindeg + (d_deg / d_fb) * sfb;
@@ -213,6 +224,10 @@ void USBJrkDialog::onJrkReadWrite(void)
 
             str.sprintf("%.3f", degrees);
             ui->degreesLabel->setText(str);
+
+            v = ((degrees * pid_vars.error) / 4095.0);
+            str.sprintf("%.3f", v);
+            ui->degErrorLabel->setText(str);
         }
 
         if(wFlags & WF_CALIB_MIN_FB) {
@@ -305,8 +320,9 @@ void USBJrkDialog::on_devicesCB_currentIndexChanged(int index)
 
 //---------------------------------------------------------------------------
 void USBJrkDialog::on_refreshBtn_clicked()
-{
+{    
     jrk_timer->stop();
+
     timer_loop = 0;
     wFlags = WF_INIT;
 
@@ -332,6 +348,7 @@ void USBJrkDialog::on_refreshBtn_clicked()
 //---------------------------------------------------------------------------
 void USBJrkDialog::readParameters(void)
 {
+
     if(!jrk)
         return;
 
@@ -407,6 +424,8 @@ void USBJrkDialog::readParameters(void)
     ui->pidIntegralLimitSb->setValue(u16);
     u8 = jrk->control_read_u8(JRK_REQUEST_GET_TYPE, JRK_REQUEST_GET_PARAMETER, 0, JRK_PARAMETER_PID_RESET_INTEGRAL);
     ui->pidResetIntegralCb->setChecked(u8 & 1 ? true:false);
+    u8 = jrk->control_read_u8(JRK_REQUEST_GET_TYPE, JRK_REQUEST_GET_PARAMETER, 0, JRK_PARAMETER_FEEDBACK_DEAD_ZONE);
+    ui->feedbackDeadZoneSb->setValue(u8);
 
     // set target slider etc
     jrk->control_transfer(JRK_REQUEST_GET_TYPE, JRK_REQUEST_GET_VARIABLES, 0, 0, (char *)iobuffer, sizeof(jrk_variables_t));
@@ -447,6 +466,8 @@ void USBJrkDialog::on_applyFeedbackBtn_clicked()
 {
     if(!jrk)
         return;
+
+    on_stopBtn_clicked();
 
     wFlags |= WF_NO_UPDATE;
 
@@ -490,6 +511,11 @@ void USBJrkDialog::on_stopBtn_clicked()
         return;
 
     wFlags |= WF_NO_UPDATE;
+
+    if(wFlags & WF_GOTO_DEG) {
+       wFlags &= ~WF_GOTO_DEG;
+       ui->gotodegBtn->setText("Track");
+    }
 
     jrk->control_write(JRK_REQUEST_SET_TYPE, JRK_REQUEST_MOTOR_OFF, 0, 0);
 
@@ -564,7 +590,7 @@ void USBJrkDialog::on_gotoMaxBtn_clicked()
 //---------------------------------------------------------------------------
 void USBJrkDialog::on_pushButton_clicked()
 {
-#if 1
+#if 0
 
     if(!jrk)
         return;
@@ -630,7 +656,7 @@ void USBJrkDialog::on_gotodegBtn_clicked()
 
     if(wFlags & WF_GOTO_DEG) {
         wFlags &= ~WF_GOTO_DEG;
-        ui->gotodegBtn->setText("Start");
+        ui->gotodegBtn->setText("Track");
         ui->gotoDegSb->setDecimals(ui->accCb->count());
         on_stopBtn_clicked();
     }
@@ -679,6 +705,8 @@ void USBJrkDialog::on_applyMotorBtn_clicked()
     if(!jrk)
         return;
 
+    on_stopBtn_clicked();
+
     wFlags |= WF_NO_UPDATE;
 
     unsigned char u8;
@@ -717,6 +745,8 @@ void USBJrkDialog::on_applyPIDBtn_clicked()
     if(!jrk)
         return;
 
+    on_stopBtn_clicked();
+
     wFlags |= WF_NO_UPDATE;
 
     set_parameter_u16(JRK_PARAMETER_PROPORTIONAL_MULTIPLIER, ui->pidPropMultSb->value());
@@ -732,6 +762,7 @@ void USBJrkDialog::on_applyPIDBtn_clicked()
     set_parameter_u16(JRK_PARAMETER_PID_INTEGRAL_LIMIT, ui->pidIntegralLimitSb->value());
 
     set_parameter_u8(JRK_PARAMETER_PID_RESET_INTEGRAL, ui->pidResetIntegralCb->isChecked() ? 1:0);
+    set_parameter_u8(JRK_PARAMETER_FEEDBACK_DEAD_ZONE, ui->feedbackDeadZoneSb->value());
 
     jrk->control_write(JRK_REQUEST_SET_TYPE, JRK_REQUEST_REINITIALIZE, 0, 0);
 
@@ -751,15 +782,20 @@ void USBJrkDialog::on_pidPropExpSb_valueChanged(int /* arg1 */)
 }
 
 //---------------------------------------------------------------------------
-void USBJrkDialog::calcProportional(void)
+double USBJrkDialog::calcProportional(void)
 {
+    pid_vars.cP = 0;
+
     if(!jrk || (wFlags & WF_INIT))
-        return;
+        return pid_vars.cP;
 
     QString str;
 
-    str.sprintf("%.5f", ((double) ui->pidPropMultSb->value()) / ((double) (1 << ui->pidPropExpSb->value())));
+    pid_vars.cP = ((double) ui->pidPropMultSb->value()) / ((double) (1 << ui->pidPropExpSb->value()));
+    str.sprintf("%.5f", pid_vars.cP);
     ui->pidPropLabel->setText(str);
+
+    return pid_vars.cP;
 }
 
 //---------------------------------------------------------------------------
@@ -775,15 +811,20 @@ void USBJrkDialog::on_pidIntExpSb_valueChanged(int /* arg1 */)
 }
 
 //---------------------------------------------------------------------------
-void USBJrkDialog::calcIntegral(void)
+double USBJrkDialog::calcIntegral(void)
 {
+    pid_vars.cI = 0;
+
     if(!jrk || (wFlags & WF_INIT))
-        return;
+        return pid_vars.cI;
 
     QString str;
 
-    str.sprintf("%.5f", ((double) ui->pidIntMultSb->value()) / ((double) (1 << ui->pidIntExpSb->value())));
+    pid_vars.cI = ((double) ui->pidIntMultSb->value()) / ((double) (1 << ui->pidIntExpSb->value()));
+    str.sprintf("%.5f", pid_vars.cI);
     ui->pidIntLabel->setText(str);
+
+    return pid_vars.cI;
 }
 
 //---------------------------------------------------------------------------
@@ -799,15 +840,20 @@ void USBJrkDialog::on_pidDerExpSb_valueChanged(int /* arg1 */)
 }
 
 //---------------------------------------------------------------------------
-void USBJrkDialog::calcDerivative(void)
+double USBJrkDialog::calcDerivative(void)
 {
+    pid_vars.cD = 0;
+
     if(!jrk || (wFlags & WF_INIT))
-        return;
+        return pid_vars.cD;
 
     QString str;
 
-    str.sprintf("%.5f", ((double) ui->pidDerMultSb->value()) / ((double) (1 << ui->pidDerExpSb->value())));
+    pid_vars.cD = ((double) ui->pidDerMultSb->value()) / ((double) (1 << ui->pidDerExpSb->value()));
+    str.sprintf("%.5f", pid_vars.cD);
     ui->pidDerLabel->setText(str);
+
+    return pid_vars.cD;
 }
 
 //---------------------------------------------------------------------------
@@ -865,12 +911,26 @@ void USBJrkDialog::on_velocityBtn_clicked()
 }
 
 //---------------------------------------------------------------------------
+void USBJrkDialog::on_startJrkButton_clicked()
+{
+    if(!jrk || !ui->errWaitingCb->isChecked())
+        return;
+
+    on_clrerrorsBtn_clicked();
+    jrk->control_write(JRK_REQUEST_SET_TYPE, JRK_REQUEST_SET_TARGET, vars.target, 0);
+    //ui->targetSlider->setValue(vars.target);
+}
+
+//---------------------------------------------------------------------------
 void USBJrkDialog::on_plotButton_clicked()
 {        
     if(/*jrk && */ !jrkPlot->isVisible()) {
         jrkPlot->show();
-        //jrkPlot->run();
+
+        if(jrk)
+            jrkPlot->run();
     }
 }
 
 //---------------------------------------------------------------------------
+

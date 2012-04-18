@@ -46,7 +46,7 @@ class JrkPlotDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit JrkPlotDialog(jrk_variables *indata, QWidget *parent = 0);
+    explicit JrkPlotDialog(jrk_variables *indata, jrk_pid_variables *pid_indata, QWidget *parent = 0);
     ~JrkPlotDialog();
 
     void run(void);
@@ -95,7 +95,8 @@ private:
     QwtPlotPanner    *plot_panner;
     QwtPlotMagnifier *plot_zoomer;
 
-    jrk_variables *data_ptr;
+    jrk_variables     *data_ptr;
+    jrk_pid_variables *pid_data_ptr;
 
     int    INTERVAL, HISTORY, SAMPLES;
     int    dataCount;
