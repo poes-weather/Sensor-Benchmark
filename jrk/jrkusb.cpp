@@ -229,12 +229,30 @@ unsigned short TJrkUSB::target(int mode)
 
 //---------------------------------------------------------------------------
 // mode & 1 = read variables
+unsigned short TJrkUSB::scaledfeedback(int mode)
+{
+    if(mode & 1)
+        readVariables();
+
+    return vars.scaledFeedback;
+}
+
+//---------------------------------------------------------------------------
+// mode & 1 = read variables
 unsigned short TJrkUSB::feedback(int mode)
 {
     if(mode & 1)
         readVariables();
 
     return vars.feedback;
+}
+
+//---------------------------------------------------------------------------
+double TJrkUSB::target2degrees(double t)
+{
+    double deg = min_deg + (max_deg - min_deg) * t / 4095.0;
+
+    return deg;
 }
 
 //---------------------------------------------------------------------------

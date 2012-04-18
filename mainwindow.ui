@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>POES-Weather Ltd Sensor Benchmark 2011</string>
+   <string>POES-Weather Ltd Sensor Benchmark</string>
   </property>
   <property name="windowIcon">
    <iconset resource="resource.qrc">

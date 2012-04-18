@@ -26,13 +26,6 @@
 #include <QDateTime>
 #include "jrk_protocol.h"
 
-typedef struct jrk_pid_variables_t
-{
-    int period; // ms
-    int integral; // sum of the error over all PID cycles
-    int P, I, D;
-} jrk_pid_variables;
-
 class QTimer;
 class TUSB;
 class TUSBDevice;
@@ -80,10 +73,10 @@ private slots:
 
 
     void on_devicesCB_currentIndexChanged(int index);
-
     void on_velocityBtn_clicked();
-
     void on_plotButton_clicked();
+
+    void on_startJrkButton_clicked();
 
 protected:
     void readSettings(void);
@@ -92,9 +85,9 @@ protected:
     void readParameters(void);
     void set_parameter_u8(unsigned char id, unsigned char value);
     void set_parameter_u16(unsigned char id, unsigned short value);
-    void calcProportional(void);
-    void calcIntegral(void);
-    void calcDerivative(void);
+    double calcProportional(void);
+    double calcIntegral(void);
+    double calcDerivative(void);
     void toggleErrors(void);
 
 
@@ -109,8 +102,8 @@ private:
     TJrkUSB       *jrkusb;
     JrkPlotDialog *jrkPlot;
 
-    jrk_variables vars;
-    jrk_pid_variables pid_vars;
+    jrk_variables       vars;
+    jrk_pid_variables   pid_vars;
 
     unsigned char *iobuffer;
     unsigned long timer_loop;
