@@ -116,11 +116,11 @@ JrkPlotDialog::JrkPlotDialog(jrk_variables *indata, jrk_pid_variables *pid_indat
     createCurve("Feedback",             Qt::darkBlue,       false,  4095);
     createCurve("Scaled feedback",      Qt::magenta,        false,  4095);
     createCurve("Error",                Qt::red,            true,   4095);
-    createCurve("Integral",             Qt::darkGreen,      true,   1000);
-    createCurve("Derivative",           Qt::yellow,         true,   1000);
-    createCurve("Duty cycle target",    Qt::darkCyan,       true,   600);
-    createCurve("Duty cycle",           Qt::darkRed,        false,  600);
-    createCurve("Current",              Qt::black,          true,   50);
+    createCurve("Integral",             Qt::darkGreen,      false,  1000);
+    createCurve("Derivative",           Qt::yellow,         false,  1000);
+    createCurve("Duty cycle target",    Qt::darkCyan,       false,  0600);
+    createCurve("Duty cycle",           Qt::darkRed,        false,  0600);
+    createCurve("Current",              Qt::black,          true,   0050);
 
     plot_timer = new QTimer(this);
     plot_timer->setInterval(INTERVAL);

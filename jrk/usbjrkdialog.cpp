@@ -41,7 +41,7 @@
 #define WF_CALIBRATING        4
 #define WF_GOTO_MIN           8
 #define WF_GOTO_MAX          16
-#define WF_GOTO_DEG          32
+
 #define WF_CALIB_MIN_FB      64
 #define WF_CALIB_MAX_FB     128
 #define WF_VELOCITY         256
@@ -67,14 +67,11 @@ USBJrkDialog::USBJrkDialog(QString _ini, QWidget *parent) :
 #endif
 
     ui->pushButton->setVisible(false);
-    ui->degSb->setVisible(false);
 
     minfb = ui->feedbackMinDegSb->value();
     maxfb = ui->feedbackMaxDegSb->value();
     mindeg = ui->mindegSb->value();
     maxdeg = ui->maxdegSb->value();
-
-    ui->accCb->setCurrentIndex(1);
 
     jrk = NULL;
     wFlags = 0;
@@ -175,7 +172,6 @@ void USBJrkDialog::onJrkReadWrite(void)
     QString str;
     double degrees, d_fb, d_deg, sfb;
     double delta, delta2, v;
-    int target;
 
     if(!jrk->control_transfer(JRK_REQUEST_GET_TYPE, JRK_REQUEST_GET_VARIABLES, 0, 0, (char *)iobuffer, sizeof(jrk_variables_t)))
         return;
@@ -202,7 +198,6 @@ void USBJrkDialog::onJrkReadWrite(void)
     ui->targetLabel->setText(str);
     str.sprintf("%d", vars.scaledFeedback);
     ui->scaledfbLabel->setText(str);
-
     str.sprintf("%.0f", pid_vars.error);
     ui->pidErrorLabel->setText(str);
 
@@ -212,13 +207,15 @@ void USBJrkDialog::onJrkReadWrite(void)
         sb->setValue(vars.feedback);
     }
 
-    if(!(wFlags & WF_CALIBRATING)) {
+    // if(!(wFlags & WF_CALIBRATING)) {
         d_deg = maxdeg - mindeg;
         d_fb = maxfb - minfb;
+        d_fb = 4095;
         current_deg = 0;
 
         if(d_fb > 0 && d_deg > 0) {
             sfb = vars.feedback - minfb;
+            sfb = vars.target;
             degrees = mindeg + (d_deg / d_fb) * sfb;
             current_deg = degrees;
 
@@ -244,29 +241,7 @@ void USBJrkDialog::onJrkReadWrite(void)
             wFlags &= ~WF_CALIB_MAX_FB;
         }
 
-        if(wFlags & WF_GOTO_DEG) {
-            // compute needed accuracy let Qt do that...
-            ui->degSb->setValue(current_deg);
-
-            delta = ui->degSb->value() - ui->gotoDegSb->value();
-
-            if(delta == 0)
-                return;
-
-
-            target = vars.target;
-
-            if(delta > 0)
-                target -= 1;
-            else if(delta < 0)
-                target += 1;
-
-            target = target < 0 ? 0:target > 4095 ? 4095:target;
-            ui->targetSlider->setValue(target);
-
-            usleep(10 * 1000);
-        }
-
+#if 0
         if(wFlags & WF_VELOCITY && (timer_loop % 20) == 0) {
             delta = fabs(current_deg - start_deg);
             delta2 = startdt.msecsTo(dt);
@@ -288,10 +263,10 @@ void USBJrkDialog::onJrkReadWrite(void)
 
 
         }
+#endif
 
 
-
-    }
+    // }
 
 }
 
@@ -512,11 +487,6 @@ void USBJrkDialog::on_stopBtn_clicked()
 
     wFlags |= WF_NO_UPDATE;
 
-    if(wFlags & WF_GOTO_DEG) {
-       wFlags &= ~WF_GOTO_DEG;
-       ui->gotodegBtn->setText("Track");
-    }
-
     jrk->control_write(JRK_REQUEST_SET_TYPE, JRK_REQUEST_MOTOR_OFF, 0, 0);
 
     wFlags &= ~WF_NO_UPDATE;
@@ -651,26 +621,14 @@ void USBJrkDialog::on_pushButton_clicked()
 //---------------------------------------------------------------------------
 void USBJrkDialog::on_gotodegBtn_clicked()
 {
-    if(!jrk)
+    double delta = (maxdeg - mindeg);
+
+    if(!jrk || delta <= 0)
         return;
 
-    if(wFlags & WF_GOTO_DEG) {
-        wFlags &= ~WF_GOTO_DEG;
-        ui->gotodegBtn->setText("Track");
-        ui->gotoDegSb->setDecimals(ui->accCb->count());
-        on_stopBtn_clicked();
-    }
-    else {
-        gotodeg = ui->gotoDegSb->value();
+    double t =  delta * ui->gotoDegSb->value() / 4095.0;
 
-        wFlags |= WF_GOTO_DEG;
-        ui->gotodegBtn->setText("Stop");
-
-        ui->gotoDegSb->setDecimals(ui->accCb->currentIndex());
-        ui->degSb->setDecimals(ui->accCb->currentIndex());
-    }
-
-    ui->targetSlider->setEnabled(wFlags & WF_GOTO_DEG ? false:true);
+    ui->targetSlider->setValue(RINT(t));
 }
 
 //---------------------------------------------------------------------------
