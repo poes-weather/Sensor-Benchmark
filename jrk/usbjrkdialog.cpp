@@ -209,13 +209,11 @@ void USBJrkDialog::onJrkReadWrite(void)
 
     // if(!(wFlags & WF_CALIBRATING)) {
         d_deg = maxdeg - mindeg;
-        d_fb = maxfb - minfb;
         d_fb = 4095;
         current_deg = 0;
 
         if(d_fb > 0 && d_deg > 0) {
-            sfb = vars.feedback - minfb;
-            sfb = vars.target;
+            sfb = vars.scaledFeedback;
             degrees = mindeg + (d_deg / d_fb) * sfb;
             current_deg = degrees;
 
@@ -241,32 +239,6 @@ void USBJrkDialog::onJrkReadWrite(void)
             wFlags &= ~WF_CALIB_MAX_FB;
         }
 
-#if 0
-        if(wFlags & WF_VELOCITY && (timer_loop % 20) == 0) {
-            delta = fabs(current_deg - start_deg);
-            delta2 = startdt.msecsTo(dt);
-
-            if(delta2 != 0)
-                ui->velocitySb->setValue(delta2 / delta);
-
-            if(delta2 > 5000) {
-                // can we stop?
-                if(wFlags & WF_FORWARD) {
-                    if(vars.feedback >= (maxfb - 3))
-                        on_velocityBtn_clicked();
-                }
-                else {
-                    if(vars.feedback >= (minfb + 3))
-                        on_velocityBtn_clicked();
-                }
-            }
-
-
-        }
-#endif
-
-
-    // }
 
 }
 
@@ -626,9 +598,15 @@ void USBJrkDialog::on_gotodegBtn_clicked()
     if(!jrk || delta <= 0)
         return;
 
-    double t =  delta * ui->gotoDegSb->value() / 4095.0;
+    double t = (ui->gotoDegSb->value() - mindeg) * 4095.0 / delta;
+    int i = RINT(t);
 
-    ui->targetSlider->setValue(RINT(t));
+    if(ui->targetSlider->value() == i)
+        jrk->control_write(JRK_REQUEST_SET_TYPE, JRK_REQUEST_SET_TARGET, i, 0);
+    else
+        ui->targetSlider->setValue(RINT(t));
+
+    //qDebug("goto target: %d", i);
 }
 
 //---------------------------------------------------------------------------
