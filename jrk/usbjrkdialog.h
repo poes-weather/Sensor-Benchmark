@@ -70,12 +70,9 @@ private slots:
     void on_pidIntExpSb_valueChanged(int arg1);
     void on_pidDerMultSb_valueChanged(int arg1);
     void on_pidDerExpSb_valueChanged(int arg1);
-
-
     void on_devicesCB_currentIndexChanged(int index);
     void on_velocityBtn_clicked();
     void on_plotButton_clicked();
-
     void on_startJrkButton_clicked();
 
 protected:
@@ -89,6 +86,8 @@ protected:
     double calcIntegral(void);
     double calcDerivative(void);
     void toggleErrors(void);
+    double target2degrees(double target);
+    double feedback2degrees(double feedback);
 
 
 private:

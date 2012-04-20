@@ -170,8 +170,7 @@ void USBJrkDialog::onJrkReadWrite(void)
     QDateTime dt;
     QSpinBox *sb;
     QString str;
-    double degrees, d_fb, d_deg, sfb;
-    double delta, delta2, v;
+    double v, sfb_deg, target_deg;
 
     if(!jrk->control_transfer(JRK_REQUEST_GET_TYPE, JRK_REQUEST_GET_VARIABLES, 0, 0, (char *)iobuffer, sizeof(jrk_variables_t)))
         return;
@@ -207,7 +206,21 @@ void USBJrkDialog::onJrkReadWrite(void)
         sb->setValue(vars.feedback);
     }
 
-    // if(!(wFlags & WF_CALIBRATING)) {
+    if(!(wFlags & WF_CALIBRATING)) {
+        sfb_deg = target2degrees(vars.scaledFeedback);
+        target_deg = target2degrees(vars.target);
+
+        str.sprintf("%.3f", target_deg);
+        ui->targetDegreesLabel->setText(str);
+
+        str.sprintf("%.3f", sfb_deg);
+        ui->scaledfbDegreesLabel->setText(str);
+
+        str.sprintf("%.3f", sfb_deg - target_deg);
+        ui->degErrorLabel->setText(str);
+    }
+
+#if 0
         d_deg = maxdeg - mindeg;
         d_fb = 4095;
         current_deg = 0;
@@ -224,6 +237,7 @@ void USBJrkDialog::onJrkReadWrite(void)
             str.sprintf("%.3f", v);
             ui->degErrorLabel->setText(str);
         }
+#endif
 
         if(wFlags & WF_CALIB_MIN_FB) {
             ui->feedbackMin->setValue(vars.scaledFeedback);
@@ -240,6 +254,26 @@ void USBJrkDialog::onJrkReadWrite(void)
         }
 
 
+}
+
+//---------------------------------------------------------------------------
+double USBJrkDialog::target2degrees(double target)
+{
+    double deg = mindeg + ((maxdeg - mindeg) / 4095.0) * target;
+
+    return deg;
+}
+
+//---------------------------------------------------------------------------
+double USBJrkDialog::feedback2degrees(double feedback)
+{
+    double delta = maxfb - minfb;
+    double deg = 0;
+
+    if(delta != 0)
+        deg = mindeg + ((maxdeg - mindeg) / delta) * feedback;
+
+    return deg;
 }
 
 //---------------------------------------------------------------------------

@@ -208,9 +208,9 @@ void TGauge::drawAzimuthType(QPainter *painter, QPaintEvent* /*event*/)
 //---------------------------------------------------------------------------
 void TGauge::drawElevationType(QPainter *painter, QPaintEvent* /*event*/)
 {
-    double v, rad;
+    double rad;
 
-    v = 0;
+
 #if 1
 
 
