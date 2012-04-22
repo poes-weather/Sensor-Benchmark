@@ -4,5 +4,10 @@
         <file>images/gauge-1.png</file>
         <file>images/test-sw.jpg</file>
         <file>images/Usb-64.png</file>
+        <file>images/document-save.png</file>
+        <file>images/gtk-remove.png</file>
+        <file>images/document-open.png</file>
+        <file>images/gtk-add.png</file>
+        <file>images/emblem-default.png</file>
     </qresource>
 </RCC>

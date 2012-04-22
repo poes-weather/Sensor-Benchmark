@@ -31,7 +31,9 @@ class TUSB;
 class TUSBDevice;
 class TJrkUSB;
 class JrkPlotDialog;
+class JrkLUT;
 
+using namespace std;
 namespace Ui {
     class USBJrkDialog;
 }
@@ -74,6 +76,9 @@ private slots:
     void on_velocityBtn_clicked();
     void on_plotButton_clicked();
     void on_startJrkButton_clicked();
+    void on_editLUTbtn_clicked();
+
+    void on_targetTodegreesLUTcb_clicked();
 
 protected:
     void readSettings(void);
@@ -86,8 +91,7 @@ protected:
     double calcIntegral(void);
     double calcDerivative(void);
     void toggleErrors(void);
-    double target2degrees(double target);
-    double feedback2degrees(double feedback);
+    void setResolution(void);
 
 
 private:
@@ -101,14 +105,14 @@ private:
     TJrkUSB       *jrkusb;
     JrkPlotDialog *jrkPlot;
 
-    jrk_variables       vars;
-    jrk_pid_variables   pid_vars;
+    jrk_variables      vars;
+    jrk_pid_variables  pid_vars;
+    vector<JrkLUT *>   jrklut;
 
     unsigned char *iobuffer;
     unsigned long timer_loop;
     unsigned short last_err;
 
-    double mindeg, maxdeg, minfb, maxfb, scaledminfb, scaledmaxfb;
     double gotodeg, current_deg;
     int    gototarget;
 

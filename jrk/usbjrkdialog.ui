@@ -284,7 +284,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -398,14 +398,14 @@
          <item row="5" column="1">
           <widget class="QPushButton" name="calibrateMinFeedbackBtn">
            <property name="text">
-            <string>Read Min</string>
+            <string>Read min</string>
            </property>
           </widget>
          </item>
          <item row="5" column="2">
           <widget class="QPushButton" name="calibrateMaxFeedbackBtn">
            <property name="text">
-            <string>Read Max</string>
+            <string>Read max</string>
            </property>
           </widget>
          </item>
@@ -498,8 +498,8 @@
          <rect>
           <x>10</x>
           <y>10</y>
-          <width>421</width>
-          <height>230</height>
+          <width>601</width>
+          <height>251</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout_2">
@@ -580,45 +580,14 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="3">
-          <widget class="QPushButton" name="applyDegBtn">
-           <property name="text">
-            <string>Apply</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="1">
-          <widget class="QPushButton" name="gotoMinBtn">
-           <property name="text">
-            <string>Run to min</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="2">
-          <widget class="QPushButton" name="gotoMaxBtn">
-           <property name="text">
-            <string>Run to max</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="3">
-          <widget class="QPushButton" name="pushButton">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="text">
-            <string>Record LUT</string>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="0">
+         <item row="7" column="0">
           <widget class="QLabel" name="label_43">
            <property name="text">
             <string>Goto degrees</string>
            </property>
           </widget>
          </item>
-         <item row="5" column="1">
+         <item row="7" column="1">
           <widget class="QDoubleSpinBox" name="gotoDegSb">
            <property name="decimals">
             <number>3</number>
@@ -631,17 +600,92 @@
            </property>
           </widget>
          </item>
-         <item row="4" column="1">
+         <item row="6" column="1">
           <widget class="QLabel" name="label_15">
            <property name="text">
             <string/>
            </property>
           </widget>
          </item>
-         <item row="5" column="2">
+         <item row="7" column="2">
           <widget class="QPushButton" name="gotodegBtn">
            <property name="text">
             <string>Go</string>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="0">
+          <widget class="QLabel" name="label_16">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_39">
+           <property name="text">
+            <string>Resolution</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QLabel" name="degResolutionLabel">
+           <property name="font">
+            <font>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>0</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0" colspan="3">
+          <widget class="QCheckBox" name="targetTodegreesLUTcb">
+           <property name="text">
+            <string>Use a lookup table for converting target to degrees</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="3">
+          <widget class="QPushButton" name="editLUTbtn">
+           <property name="text">
+            <string>Edit...</string>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="1">
+          <widget class="QPushButton" name="gotoMinBtn">
+           <property name="text">
+            <string>Run to min</string>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="2">
+          <widget class="QPushButton" name="gotoMaxBtn">
+           <property name="text">
+            <string>Run to max</string>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="3">
+          <widget class="QPushButton" name="pushButton">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>Record LUT</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="3">
+          <widget class="QPushButton" name="applyDegBtn">
+           <property name="text">
+            <string>Apply</string>
            </property>
           </widget>
          </item>
@@ -1216,7 +1260,7 @@
           <x>20</x>
           <y>10</y>
           <width>391</width>
-          <height>29</height>
+          <height>57</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout_7">
@@ -1247,6 +1291,13 @@
           <widget class="QPushButton" name="velocityBtn">
            <property name="text">
             <string>Start</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QCheckBox" name="checkBox">
+           <property name="text">
+            <string>CheckBox</string>
            </property>
           </widget>
          </item>

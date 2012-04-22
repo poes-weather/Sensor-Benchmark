@@ -34,13 +34,13 @@
 #include "usbdevice.h"
 #include "jrkusb.h"
 #include "jrkplotdialog.h"
+#include "jrklut.h"
+#include "jrklutdialog.h"
 
 //---------------------------------------------------------------------------
 #define WF_INIT               1
 #define WF_NO_UPDATE          2
 #define WF_CALIBRATING        4
-#define WF_GOTO_MIN           8
-#define WF_GOTO_MAX          16
 
 #define WF_CALIB_MIN_FB      64
 #define WF_CALIB_MAX_FB     128
@@ -67,11 +67,6 @@ USBJrkDialog::USBJrkDialog(QString _ini, QWidget *parent) :
 #endif
 
     ui->pushButton->setVisible(false);
-
-    minfb = ui->feedbackMinDegSb->value();
-    maxfb = ui->feedbackMaxDegSb->value();
-    mindeg = ui->mindegSb->value();
-    maxdeg = ui->maxdegSb->value();
 
     jrk = NULL;
     wFlags = 0;
@@ -107,6 +102,11 @@ USBJrkDialog::~USBJrkDialog()
 
     delete jrkPlot;
 
+    vector<JrkLUT *>::iterator i = jrklut.begin();
+    for(; i < jrklut.end(); i++)
+        delete *i;
+    jrklut.clear();
+
     delete ui;
 }
 
@@ -134,15 +134,10 @@ void USBJrkDialog::readSettings(void)
     QSettings reg(ini, QSettings::IniFormat);
     jrkusb->readSettings(&reg);
 
-    ui->feedbackMinDegSb->setValue(jrkusb->minFeedback());
-    ui->feedbackMaxDegSb->setValue(jrkusb->maxFeedback());
-    ui->mindegSb->setValue(jrkusb->minPos());
-    ui->maxdegSb->setValue(jrkusb->maxPos());
+    ui->mindegSb->setValue(jrkusb->minDegrees());
+    ui->maxdegSb->setValue(jrkusb->maxDegrees());
+    ui->targetTodegreesLUTcb->setChecked(jrkusb->isFlagOn(JRK_USE_LUT));
 
-    minfb = jrkusb->minFeedback();
-    maxfb = jrkusb->maxFeedback();
-    mindeg = jrkusb->minPos();
-    maxdeg = jrkusb->maxPos();
 }
 
 //---------------------------------------------------------------------------
@@ -168,7 +163,6 @@ void USBJrkDialog::onJrkReadWrite(void)
         return;
 
     QDateTime dt;
-    QSpinBox *sb;
     QString str;
     double v, sfb_deg, target_deg;
 
@@ -190,7 +184,7 @@ void USBJrkDialog::onJrkReadWrite(void)
 
     // todo...how far off is our current PID
 
-    // other realtime labels
+    // realtime Jrk labels
     str.sprintf("%d", vars.feedback);
     ui->feedbackLabel->setText(str);
     str.sprintf("%d", vars.target);
@@ -201,14 +195,9 @@ void USBJrkDialog::onJrkReadWrite(void)
     ui->pidErrorLabel->setText(str);
 
 
-    if(wFlags & (WF_GOTO_MIN | WF_GOTO_MAX)) {
-        sb = wFlags & WF_GOTO_MIN ? ui->feedbackMinDegSb:ui->feedbackMaxDegSb;
-        sb->setValue(vars.feedback);
-    }
-
     if(!(wFlags & WF_CALIBRATING)) {
-        sfb_deg = target2degrees(vars.scaledFeedback);
-        target_deg = target2degrees(vars.target);
+        sfb_deg    = jrkusb->targetTodegrees(vars.scaledFeedback);
+        target_deg = jrkusb->targetTodegrees(vars.target);
 
         str.sprintf("%.3f", target_deg);
         ui->targetDegreesLabel->setText(str);
@@ -257,26 +246,6 @@ void USBJrkDialog::onJrkReadWrite(void)
 }
 
 //---------------------------------------------------------------------------
-double USBJrkDialog::target2degrees(double target)
-{
-    double deg = mindeg + ((maxdeg - mindeg) / 4095.0) * target;
-
-    return deg;
-}
-
-//---------------------------------------------------------------------------
-double USBJrkDialog::feedback2degrees(double feedback)
-{
-    double delta = maxfb - minfb;
-    double deg = 0;
-
-    if(delta != 0)
-        deg = mindeg + ((maxdeg - mindeg) / delta) * feedback;
-
-    return deg;
-}
-
-//---------------------------------------------------------------------------
 void USBJrkDialog::on_devicesCB_currentIndexChanged(int index)
 {
     if(wFlags & WF_INIT)
@@ -317,8 +286,8 @@ void USBJrkDialog::on_refreshBtn_clicked()
 
     jrk = usb->get_device(ui->devicesCB->currentIndex());
     jrkusb->setDevice(jrk);
-    readSettings();
 
+    readSettings();
     readParameters();
 
     wFlags = 0;
@@ -419,6 +388,7 @@ void USBJrkDialog::readParameters(void)
 
     wFlags &= ~WF_INIT;
 
+    setResolution();
     calcProportional();
     calcIntegral();
     calcDerivative();
@@ -459,6 +429,8 @@ void USBJrkDialog::on_applyFeedbackBtn_clicked()
     set_parameter_u16(JRK_PARAMETER_FEEDBACK_DISCONNECT_MAXIMUM, ui->feedbackDisconnectMax->value());
 
     jrk->control_write(JRK_REQUEST_SET_TYPE, JRK_REQUEST_REINITIALIZE, 0, 0);
+
+    setResolution();
 
     wFlags &= ~WF_NO_UPDATE;
 }
@@ -517,24 +489,36 @@ void USBJrkDialog::on_applyDegBtn_clicked()
 {
     wFlags |= WF_NO_UPDATE;
 
-    wFlags &= ~(WF_CALIBRATING | WF_GOTO_MAX | WF_GOTO_MIN);
+    wFlags &= ~WF_CALIBRATING;
 
-    minfb = ui->feedbackMinDegSb->value();
-    maxfb = ui->feedbackMaxDegSb->value();
-    mindeg = ui->mindegSb->value();
-    maxdeg = ui->maxdegSb->value();
+    ui->gotoDegSb->setMinimum(ui->mindegSb->value());
+    ui->gotoDegSb->setMaximum(ui->maxdegSb->value());
 
-    ui->gotoDegSb->setMinimum(mindeg);
-    ui->gotoDegSb->setMaximum(maxdeg);
-
-    jrkusb->minFeedback(minfb);
-    jrkusb->maxFeedback(maxfb);
-    jrkusb->minPos(mindeg);
-    jrkusb->maxPos(maxdeg);
+    jrkusb->minDegrees(ui->mindegSb->value());
+    jrkusb->maxDegrees(ui->maxdegSb->value());
 
     writeSettings();
 
-    wFlags &= ~WF_NO_UPDATE;    
+    jrkusb->loadLUT();
+    setResolution();
+
+    wFlags &= ~WF_NO_UPDATE;
+}
+
+//---------------------------------------------------------------------------
+void USBJrkDialog::setResolution(void)
+{
+    QString str;
+    double delta_fb = ui->feedbackMax->value() - ui->feedbackMin->value();
+    double delta_deg = ui->maxdegSb->value() - ui->mindegSb->value();
+    double t_resolution = delta_fb / 4095.0;
+    double d_resolution = 0;
+
+    if(delta_deg >= 0 && delta_deg <= 360)
+        d_resolution = t_resolution / delta_deg;
+
+    str.sprintf("%.3f", d_resolution);
+    ui->degResolutionLabel->setText(str);
 }
 
 //---------------------------------------------------------------------------
@@ -542,10 +526,7 @@ void USBJrkDialog::on_gotoMinBtn_clicked()
 {
     wFlags |= WF_NO_UPDATE;
 
-    wFlags &= ~WF_GOTO_MAX;
-    wFlags |= WF_GOTO_MIN | WF_CALIBRATING;
-
-    ui->targetSlider->setValue(ui->targetSlider->minimum());
+    ui->targetSlider->setValue(0);
 
     wFlags &= ~WF_NO_UPDATE;
 }
@@ -555,10 +536,7 @@ void USBJrkDialog::on_gotoMaxBtn_clicked()
 {
     wFlags |= WF_NO_UPDATE;
 
-    wFlags &= ~WF_GOTO_MIN;
-    wFlags |= WF_GOTO_MAX | WF_CALIBRATING;
-
-    ui->targetSlider->setValue(ui->targetSlider->maximum());
+    ui->targetSlider->setValue(4095);
 
     wFlags &= ~WF_NO_UPDATE;
 }
@@ -627,11 +605,10 @@ void USBJrkDialog::on_pushButton_clicked()
 //---------------------------------------------------------------------------
 void USBJrkDialog::on_gotodegBtn_clicked()
 {
-    double delta = (maxdeg - mindeg);
-
-    if(!jrk || delta <= 0)
+    if(!jrk)
         return;
 
+#if 0
     double t = (ui->gotoDegSb->value() - mindeg) * 4095.0 / delta;
     int i = RINT(t);
 
@@ -639,6 +616,7 @@ void USBJrkDialog::on_gotodegBtn_clicked()
         jrk->control_write(JRK_REQUEST_SET_TYPE, JRK_REQUEST_SET_TARGET, i, 0);
     else
         ui->targetSlider->setValue(RINT(t));
+#endif
 
     //qDebug("goto target: %d", i);
 }
@@ -859,6 +837,7 @@ void USBJrkDialog::on_velocityBtn_clicked()
     if(!jrk)
         return;
 
+#if 0 // todo
     if(wFlags & WF_VELOCITY) {
         wFlags &= ~(WF_VELOCITY | WF_FORWARD);
 
@@ -878,6 +857,7 @@ void USBJrkDialog::on_velocityBtn_clicked()
     }
 
     ui->velocityBtn->setText(wFlags & WF_VELOCITY ? "Stop":"Start");
+#endif
 }
 
 //---------------------------------------------------------------------------
@@ -900,6 +880,23 @@ void USBJrkDialog::on_plotButton_clicked()
         if(jrk)
             jrkPlot->run();
     }
+}
+
+//---------------------------------------------------------------------------
+void USBJrkDialog::on_editLUTbtn_clicked()
+{
+    JrkLUTDialog dlg(jrkusb->lutFile(), ui->mindegSb->value(), ui->maxdegSb->value(), this);
+
+    if(dlg.exec() == QDialog::Accepted) {
+        jrkusb->lutFile(dlg.getFilename());
+    }
+
+}
+
+//---------------------------------------------------------------------------
+void USBJrkDialog::on_targetTodegreesLUTcb_clicked()
+{
+    jrkusb->setFlag(JRK_USE_LUT, ui->targetTodegreesLUTcb->isChecked());
 }
 
 //---------------------------------------------------------------------------

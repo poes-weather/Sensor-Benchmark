@@ -23,16 +23,19 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+#include <QTableWidget>
 #include <math.h>
-#ifndef RINT
-#   define RINT(x) (floor((x) + 0.5))
-#endif
 
 #ifndef RINT
 #   define RINT(x) (floor((x) + 0.5))
 #endif
 
+#ifndef RINT
+#   define RINT(x) (floor((x) + 0.5))
+#endif
 
-void   delay(unsigned int msec);
+
+void delay(unsigned int msec);
+void clearGrid(QTableWidget *grid, int setrowcount = 0);
 
 #endif // UTILS_H

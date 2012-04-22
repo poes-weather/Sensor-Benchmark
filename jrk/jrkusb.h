@@ -24,12 +24,21 @@
 
 #include <QString>
 #include <QStringList>
+#include <vector>
+
 
 #include "jrk_protocol.h"
 //---------------------------------------------------------------------------
 
+#define JRK_USE_LUT     1
+
+//---------------------------------------------------------------------------
 class TUSBDevice;
 class QSettings;
+class JrkLUT;
+
+using namespace std;
+
 
 //---------------------------------------------------------------------------
 class TJrkUSB
@@ -41,51 +50,60 @@ public:
     bool setDevice(TUSBDevice *usbdev);
     bool isOpen(void);
 
-    void    readSettings(QSettings *reg);
-    void    writeSettings(QSettings *reg);
+    void readSettings(QSettings *reg);
+    void writeSettings(QSettings *reg);
+    void setFlag(unsigned int flag, bool on);
+    bool isFlagOn(unsigned int flag);
+
+    bool    readVariables(void);
 
     bool    setTarget(unsigned short target);
     unsigned short target(int mode = 0);
     unsigned short scaledfeedback(int mode = 0);
     unsigned short feedback(int mode = 0);
 
-    double target2degrees(double t);
 
     QString serialnumber(void) { return sn_; }
+    QString lutFile(void) { return lutFile_; }
+    void    lutFile(QString lut) { lutFile_ = lut; }
+    void    loadLUT(void);
+
     void    stop(void);
     void    clearErrors(void);
     void    errorStr(QStringList *sl);
 
-    double  maxPos(void)       { return max_deg; }
-    void    maxPos(double deg) { max_deg = deg; }
-    double  minPos(void)       { return min_deg; }
-    void    minPos(double deg) { min_deg = deg; }
+    double  maxDegrees(void)       { return max_deg; }
+    void    maxDegrees(double deg) { max_deg = (deg < 0 ? 0:(deg > 360 ? 360:deg)); }
+    double  minDegrees(void)       { return min_deg; }
+    void    minDegrees(double deg) { min_deg = (deg < 0 ? 0:(deg > 360 ? 360:deg)); }
 
-    unsigned short maxFeedback(void)       { return max_fb; }
-    unsigned short minFeedback(void)       { return min_fb; }
-    void    maxFeedback(unsigned short fb) { max_fb = fb; }
-    void    minFeedback(unsigned short fb) { min_fb = fb; }
+    double  degrees(int mode = 0);
+    double  targetTodegrees(unsigned short t);
 
-    double  currentPos(void) { return current_deg; }
-    double  readPos(int mode = 0);
-    void    moveTo(double deg);
-    bool    readVariables(void);
+    unsigned short degreesTotarget(double deg);
+
+
+    void    moveToDegrees(double deg, int mode = 0);
 
     TUSBDevice *udev(void) { return jrk; }
 
 protected:
-    double feedbackToPos(int feedback);
-    unsigned short posToTarget(double deg);
+    double valueTodegrees(unsigned short t);
+    unsigned short degreesTovalue(double deg);
+
+    double lutTargetToDegrees(unsigned short t);
+    void flushLUT(void);
 
 private:
     TUSBDevice    *jrk;
     jrk_variables vars;
     unsigned char *iobuff;
-    QString    sn_;
-    double     current_deg, max_deg, min_deg;
-    unsigned short min_fb, max_fb;
+    unsigned int jrk_flags;
 
+    QString    sn_, lutFile_;
+    double     max_deg, min_deg;
 
+    vector<JrkLUT *> jrklut;
 };
 
 #endif // JRKUSB_H

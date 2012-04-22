@@ -42,3 +42,19 @@ void delay(unsigned int msec)
 #  endif
 #endif
 }
+
+//---------------------------------------------------------------------------
+void clearGrid(QTableWidget *grid, int setrowcount)
+{
+ QTableWidgetItem *item;
+ int  i, j;
+
+  for(i=0; i<grid->rowCount(); i++)
+      for(j=0; j<grid->columnCount(); j++) {
+         item = grid->item(i, j);
+         if(item)
+             delete item;
+     }
+
+  grid->setRowCount(setrowcount);
+}
