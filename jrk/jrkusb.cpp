@@ -204,111 +204,95 @@ bool TJrkUSB::setTarget(unsigned short target)
 }
 
 //---------------------------------------------------------------------------
-// mode & 1 = read variables
-unsigned short TJrkUSB::target(int mode)
+// mode & 1 = use lookup table
+unsigned short TJrkUSB::toValue(double deg, int mode)
 {
-    if(mode & 1)
-        readVariables();
-
-    return vars.target;
-}
-
-//---------------------------------------------------------------------------
-// mode & 1 = read variables
-unsigned short TJrkUSB::scaledfeedback(int mode)
-{
-    if(mode & 1)
-        readVariables();
-
-    return vars.scaledFeedback;
-}
-
-//---------------------------------------------------------------------------
-// mode & 1 = read variables
-unsigned short TJrkUSB::feedback(int mode)
-{
-    if(mode & 1)
-        readVariables();
-
-    return vars.feedback;
-}
-
-//---------------------------------------------------------------------------
-// mode & 1 = read variables
-double TJrkUSB::degrees(int mode)
-{
-    if(mode & 1)
-        readVariables();
-
-    return targetTodegrees(vars.target);
-}
-
-//---------------------------------------------------------------------------
-// mode & 1 = read variables
-void TJrkUSB::moveToDegrees(double deg, int mode)
-{
-    if(!isOpen())
-        return;
-
-    if(mode & 1)
-        if(!readVariables())
-            return;
+    double d, delta;
+    unsigned short t = 0;
 
     deg = deg < min_deg ? min_deg:(deg > max_deg ? max_deg:deg);
 
+    // check
+    if(mode & 1) {
+        if(!isFlagOn(JRK_USE_LUT) || jrklut.size() == 0)
+            mode &= ~1;
+    }
 
-    //setTarget(RINT(dt));
+    if(mode & 1)
+        t = lutToTarget(deg);
+    else {
+        delta = max_deg - min_deg;
+
+        if(delta <= 0)
+            d = 0;
+        else
+            d = (deg - min_deg) * 4095.0 / delta;
+
+        t = ((unsigned short) RINT(d)) & 0x0fff;
+    }
+
+    return (t & 0x0fff);
 }
 
 //---------------------------------------------------------------------------
-// t can be either target or scaledfeedback, max 4095
-double TJrkUSB::targetTodegrees(unsigned short t)
+// mode & 1     = read from device
+// mode & 1 | 2 = use target value
+// mode & 1 | 4 = use scaled feedback
+// mode & 8     = convert t to degrees using current lookup table
+double TJrkUSB::toDegrees(unsigned short t, int mode)
 {
-    if(isFlagOn(JRK_USE_LUT))
-        return lutTargetToDegrees(t);
-    else
-        return valueTodegrees(t);
-}
+    double deg = min_deg;
 
-//---------------------------------------------------------------------------
-// t can be either target or scaled feedback
-double TJrkUSB::valueTodegrees(unsigned short t)
-{
-    double deg;
+    if(!isOpen())
+        return deg;
 
     t &= 0x0fff;
+
+    // default 12 bit
     deg = min_deg + (max_deg - min_deg) * ((double) t) / 4095.0;
+
+    // check
+    if(mode & 8)
+        if(!isFlagOn(JRK_USE_LUT) || jrklut.size() == 0)
+            mode &= ~8;
+
+    if(mode & 1)
+        if(readVariables())
+            t = (mode & 2) ? vars.target:vars.scaledFeedback;
+
+    if(mode & 8)
+        deg = lutToDegrees(t);
 
     return deg;
 }
 
 //---------------------------------------------------------------------------
-unsigned short TJrkUSB::degreesTovalue(double deg)
+// mode & 1 = use lookup table
+// mode & 2 = read position from device and move if needed
+void TJrkUSB::moveTo(double deg, int mode)
 {
-    double dt, d_deg = max_deg - min_deg;
+    if(!isOpen())
+        return;
+
     unsigned short t;
 
-    deg = deg < min_deg ? min_deg:(deg > max_deg ? max_deg:deg);
+    t = toValue(deg, mode & 1);
 
-    if(d_deg <= 0)
-        dt = 0;
-    else
-        dt = (deg - min_deg) * 4095.0 / d_deg;
+    if(mode & 2)
+        if(readVariables())
+            if(vars.target == t)
+                return;
 
-    t = ((unsigned short) RINT(dt)) & 0x0fff;
-
-    return t;
+    setTarget(t);
 }
 
-
 //---------------------------------------------------------------------------
-double TJrkUSB::lutTargetToDegrees(unsigned short t)
+double TJrkUSB::lutToDegrees(unsigned short t)
 {
     JrkLUT *l, *l_min = NULL, *l_max = NULL;
     double d_min = min_deg, d_max = max_deg;
     double t_min = 0, t_max = 4095;
     double deg, delta_t, delta_d;
-
     size_t i;
 
     t &= 0x0fff;
@@ -317,13 +301,13 @@ double TJrkUSB::lutTargetToDegrees(unsigned short t)
 
         if(l->target() <= t)
             l_min = l;
-        else if(l->target() > t)
+
+        if(l->target() >= t)
             l_max = l;
 
         if(l_min && l_max)
             break;
     }
-
 
     if(l_min) {
         d_min = l_min->degrees();
@@ -339,11 +323,59 @@ double TJrkUSB::lutTargetToDegrees(unsigned short t)
     delta_d = d_max - d_min;
 
     if(delta_t <= 0)
-        deg = valueTodegrees(t); // fatal LUT input error...
+        deg = d_min;
     else
         deg = d_min + ((((double) t) - t_min) * delta_d) / delta_t;
 
     return deg;
+}
+
+//---------------------------------------------------------------------------
+unsigned short TJrkUSB::lutToTarget(double deg)
+{
+    JrkLUT *l, *l_min = NULL, *l_max = NULL;
+    double d_min = min_deg, d_max = max_deg;
+    double t_min = 0, t_max = 4095;
+    double v, delta_t, delta_d;
+    unsigned short t;
+    size_t i;
+
+    deg = deg < min_deg ? min_deg:(deg > max_deg ? max_deg:deg);
+
+    for(i=0; i<jrklut.size(); i++) {
+        l = (JrkLUT *) jrklut.at(i);
+
+        if(l->degrees() <= deg)
+            l_min = l;
+
+        if(l->degrees() >= deg)
+            l_max = l;
+
+        if(l_min && l_max)
+            break;
+    }
+
+    if(l_min) {
+        d_min = l_min->degrees();
+        t_min = l_min->target();
+    }
+
+    if(l_max) {
+        d_max = l_max->degrees();
+        t_max = l_max->target();
+    }
+
+    delta_t = t_max - t_min;
+    delta_d = d_max - d_min;
+
+    if(delta_d <= 0)
+        v = t_min;
+    else
+        v = t_min + (deg - d_min) * delta_t / delta_d;
+
+    t = ((unsigned short) RINT(v)) & 0x0fff;
+
+    return t;
 }
 
 //---------------------------------------------------------------------------

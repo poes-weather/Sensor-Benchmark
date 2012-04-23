@@ -58,10 +58,6 @@ public:
     bool    readVariables(void);
 
     bool    setTarget(unsigned short target);
-    unsigned short target(int mode = 0);
-    unsigned short scaledfeedback(int mode = 0);
-    unsigned short feedback(int mode = 0);
-
 
     QString serialnumber(void) { return sn_; }
     QString lutFile(void) { return lutFile_; }
@@ -77,26 +73,21 @@ public:
     double  minDegrees(void)       { return min_deg; }
     void    minDegrees(double deg) { min_deg = (deg < 0 ? 0:(deg > 360 ? 360:deg)); }
 
-    double  degrees(int mode = 0);
-    double  targetTodegrees(unsigned short t);
-
-    unsigned short degreesTotarget(double deg);
-
-
-    void    moveToDegrees(double deg, int mode = 0);
+    double  toDegrees(unsigned short t, int mode = 0);
+    unsigned short toValue(double deg, int mode = 0);
+    void    moveTo(double deg, int mode);
 
     TUSBDevice *udev(void) { return jrk; }
+    jrk_variables vars;
 
 protected:
-    double valueTodegrees(unsigned short t);
-    unsigned short degreesTovalue(double deg);
+    double lutToDegrees(unsigned short t);
+    unsigned short lutToTarget(double deg);
 
-    double lutTargetToDegrees(unsigned short t);
     void flushLUT(void);
 
 private:
     TUSBDevice    *jrk;
-    jrk_variables vars;
     unsigned char *iobuff;
     unsigned int jrk_flags;
 

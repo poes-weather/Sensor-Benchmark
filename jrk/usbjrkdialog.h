@@ -105,7 +105,7 @@ private:
     TJrkUSB       *jrkusb;
     JrkPlotDialog *jrkPlot;
 
-    jrk_variables      vars;
+    //jrk_variables      vars;
     jrk_pid_variables  pid_vars;
     vector<JrkLUT *>   jrklut;
 

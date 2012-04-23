@@ -36,6 +36,8 @@
 #include "jrkplotdialog.h"
 #include "jrklut.h"
 #include "jrklutdialog.h"
+#include "utils.h"
+
 
 //---------------------------------------------------------------------------
 #define WF_INIT               1
@@ -49,7 +51,9 @@
 
 static const int TIMER_INTERVAL_MS = 100;
 
-#define RINT(x) (floor(x) + 0.5)
+#ifndef RINT
+#   define RINT(x) (floor(x) + 0.5)
+#endif
 //---------------------------------------------------------------------------
 USBJrkDialog::USBJrkDialog(QString _ini, QWidget *parent) :
     QDialog(parent),
@@ -59,25 +63,17 @@ USBJrkDialog::USBJrkDialog(QString _ini, QWidget *parent) :
     setLayout(ui->mainLayout);
     ini = _ini;
 
-#if 0
-    ui->targetLabel->setText("");
-    ui->degreesLabel->setText("");
-    ui->feedbackLabel->setText("");
-    ui->scaleddegreesLabel->setText("");
-#endif
-
     ui->pushButton->setVisible(false);
 
     jrk = NULL;
     wFlags = 0;
 
-    memset(&vars, 0, sizeof(jrk_variables_t));
     memset(&pid_vars, 0, sizeof(jrk_pid_variables_t));
 
     iobuffer = (unsigned char *) malloc(JRK_IO_BUF_SIZE);
     usb = new TUSB();
     jrkusb = new TJrkUSB;
-    jrkPlot = new JrkPlotDialog(&vars, &pid_vars, this);
+    jrkPlot = new JrkPlotDialog(&jrkusb->vars, &pid_vars, this);
 
     jrk_timer = new QTimer(this);
     jrk_timer->setInterval(TIMER_INTERVAL_MS); //10;
@@ -166,38 +162,34 @@ void USBJrkDialog::onJrkReadWrite(void)
     QString str;
     double v, sfb_deg, target_deg;
 
-    if(!jrk->control_transfer(JRK_REQUEST_GET_TYPE, JRK_REQUEST_GET_VARIABLES, 0, 0, (char *)iobuffer, sizeof(jrk_variables_t)))
+    if(!jrkusb->readVariables())
         return;
 
     dt = QDateTime::currentDateTime();
 
-    vars = *(jrk_variables *) iobuffer;
-
     toggleErrors();
     timer_loop++;
 
-    v = pid_vars.error; // previous error
-    pid_vars.error = vars.scaledFeedback - vars.target;
-    pid_vars.integral = vars.errorSum;
+    v = pid_vars.error;
+    pid_vars.error = jrkusb->vars.scaledFeedback - jrkusb->vars.target;
+    pid_vars.integral = jrkusb->vars.errorSum;
     pid_vars.derivative = pid_vars.error - v;
 
 
-    // todo...how far off is our current PID
-
     // realtime Jrk labels
-    str.sprintf("%d", vars.feedback);
+    str.sprintf("%d", jrkusb->vars.feedback);
     ui->feedbackLabel->setText(str);
-    str.sprintf("%d", vars.target);
+    str.sprintf("%d", jrkusb->vars.target);
     ui->targetLabel->setText(str);
-    str.sprintf("%d", vars.scaledFeedback);
+    str.sprintf("%d", jrkusb->vars.scaledFeedback);
     ui->scaledfbLabel->setText(str);
     str.sprintf("%.0f", pid_vars.error);
     ui->pidErrorLabel->setText(str);
 
 
     if(!(wFlags & WF_CALIBRATING)) {
-        sfb_deg    = jrkusb->targetTodegrees(vars.scaledFeedback);
-        target_deg = jrkusb->targetTodegrees(vars.target);
+        sfb_deg    = jrkusb->toDegrees(jrkusb->vars.scaledFeedback);
+        target_deg = jrkusb->toDegrees(jrkusb->vars.target, 8);
 
         str.sprintf("%.3f", target_deg);
         ui->targetDegreesLabel->setText(str);
@@ -229,15 +221,15 @@ void USBJrkDialog::onJrkReadWrite(void)
 #endif
 
         if(wFlags & WF_CALIB_MIN_FB) {
-            ui->feedbackMin->setValue(vars.scaledFeedback);
-            ui->feedbackDisconnectMin->setValue(vars.scaledFeedback / 2);
+            ui->feedbackMin->setValue(jrkusb->vars.scaledFeedback);
+            ui->feedbackDisconnectMin->setValue(jrkusb->vars.scaledFeedback / 2);
 
             wFlags &= ~WF_CALIB_MIN_FB;
         }
 
         if(wFlags & WF_CALIB_MAX_FB) {
-            ui->feedbackMax->setValue(vars.scaledFeedback);
-            ui->feedbackDisconnectMax->setValue(vars.scaledFeedback + (4095 - vars.scaledFeedback) / 2);
+            ui->feedbackMax->setValue(jrkusb->vars.scaledFeedback);
+            ui->feedbackDisconnectMax->setValue(jrkusb->vars.scaledFeedback + (4095 - jrkusb->vars.scaledFeedback) / 2);
 
             wFlags &= ~WF_CALIB_MAX_FB;
         }
@@ -378,13 +370,12 @@ void USBJrkDialog::readParameters(void)
     ui->feedbackDeadZoneSb->setValue(u8);
 
     // set target slider etc
-    jrk->control_transfer(JRK_REQUEST_GET_TYPE, JRK_REQUEST_GET_VARIABLES, 0, 0, (char *)iobuffer, sizeof(jrk_variables_t));
-    vars = *(jrk_variables *) iobuffer;
+    jrkusb->readVariables();
 
-    if(ui->targetSlider->value() == vars.target)
-        on_targetSlider_valueChanged(vars.target);
+    if(ui->targetSlider->value() == jrkusb->vars.target)
+        on_targetSlider_valueChanged(jrkusb->vars.target);
 
-    ui->targetSlider->setValue(vars.target);
+    ui->targetSlider->setValue(jrkusb->vars.target);
 
     wFlags &= ~WF_INIT;
 
@@ -407,7 +398,7 @@ void USBJrkDialog::on_targetSlider_valueChanged(int value)
     wFlags |= WF_NO_UPDATE;
 
     if(!(wFlags & WF_INIT))
-        jrk->control_write(JRK_REQUEST_SET_TYPE, JRK_REQUEST_SET_TARGET, value, 0);
+        jrkusb->setTarget(value);
 
     wFlags &= ~WF_NO_UPDATE;
 }
@@ -605,20 +596,12 @@ void USBJrkDialog::on_pushButton_clicked()
 //---------------------------------------------------------------------------
 void USBJrkDialog::on_gotodegBtn_clicked()
 {
-    if(!jrk)
-        return;
+    if(jrk) {
+        unsigned short t = jrkusb->toValue(ui->gotoDegSb->value(), 1);
 
-#if 0
-    double t = (ui->gotoDegSb->value() - mindeg) * 4095.0 / delta;
-    int i = RINT(t);
-
-    if(ui->targetSlider->value() == i)
-        jrk->control_write(JRK_REQUEST_SET_TYPE, JRK_REQUEST_SET_TARGET, i, 0);
-    else
-        ui->targetSlider->setValue(RINT(t));
-#endif
-
-    //qDebug("goto target: %d", i);
+        ui->targetSlider->setValue(t);
+        //qDebug("goto target: %d", t);
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -809,7 +792,7 @@ void USBJrkDialog::toggleErrors(void)
 {
     unsigned short err;
 
-    err = vars.errorOccurredBits | vars.errorFlagBits;
+    err = jrkusb->vars.errorOccurredBits | jrkusb->vars.errorFlagBits;
 
     QString str;
 
@@ -867,8 +850,7 @@ void USBJrkDialog::on_startJrkButton_clicked()
         return;
 
     on_clrerrorsBtn_clicked();
-    jrk->control_write(JRK_REQUEST_SET_TYPE, JRK_REQUEST_SET_TARGET, vars.target, 0);
-    //ui->targetSlider->setValue(vars.target);
+    jrkusb->setTarget(jrkusb->vars.target);
 }
 
 //---------------------------------------------------------------------------
