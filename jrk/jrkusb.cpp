@@ -36,6 +36,9 @@ TJrkUSB::TJrkUSB(void)
 
     jrk_flags = 0;
 
+    min_fb = 0;
+    max_fb = 4095;
+
     min_deg = 0;
     max_deg = 360;
 
@@ -75,6 +78,9 @@ bool TJrkUSB::setDevice(TUSBDevice *usbdev)
         return false;
 
     sn_ = jrk->serialnumber();
+
+    min_fb = jrk->control_read_u16(JRK_REQUEST_GET_TYPE, JRK_REQUEST_GET_PARAMETER, 0, JRK_PARAMETER_FEEDBACK_MINIMUM);
+    max_fb = jrk->control_read_u16(JRK_REQUEST_GET_TYPE, JRK_REQUEST_GET_PARAMETER, 0, JRK_PARAMETER_FEEDBACK_MAXIMUM);
 
     return true;
 }
@@ -235,30 +241,47 @@ unsigned short TJrkUSB::toValue(double deg, int mode)
 }
 
 //---------------------------------------------------------------------------
-// mode & 1     = read from device
-// mode & 1 | 2 = use target value
-// mode & 1 | 4 = use scaled feedback
-// mode & 8     = convert t to degrees using current lookup table
+// mode & 1      = read from device
+// mode & 1 |  2 = use target value
+// mode & 1 |  4 = use scaled feedback
+// mode & 1 | 16 = use feedback
+// mode & 8      = convert t to degrees using current lookup table
 double TJrkUSB::toDegrees(unsigned short t, int mode)
 {
     double deg = min_deg;
+    double delta_fb;
 
     if(!isOpen())
         return deg;
 
+    if(mode & 1) {
+        if(readVariables()) {
+            if(mode & 2)
+                t = vars.target;
+            else if(mode & 4)
+                t = vars.scaledFeedback;
+            else if(mode & 16)
+                t = vars.feedback;
+        }
+    }
+
     t &= 0x0fff;
 
+    if(mode& 16)
+        delta_fb = max_fb - min_fb;
+    else
+        delta_fb = 4095;
+
+    if(delta_fb <= 0)
+        return min_deg;
+
     // default 12 bit
-    deg = min_deg + (max_deg - min_deg) * ((double) t) / 4095.0;
+    deg = min_deg + (max_deg - min_deg) * ((double) t) / delta_fb;
 
     // check
     if(mode & 8)
         if(!isFlagOn(JRK_USE_LUT) || jrklut.size() == 0)
             mode &= ~8;
-
-    if(mode & 1)
-        if(readVariables())
-            t = (mode & 2) ? vars.target:vars.scaledFeedback;
 
     if(mode & 8)
         deg = lutToDegrees(t);

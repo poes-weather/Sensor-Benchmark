@@ -73,6 +73,9 @@ public:
     double  minDegrees(void)       { return min_deg; }
     void    minDegrees(double deg) { min_deg = (deg < 0 ? 0:(deg > 360 ? 360:deg)); }
 
+    void minFeedback(double fb) { min_fb = fb; }
+    void maxFeedback(double fb) { max_fb = fb; }
+
     double  toDegrees(unsigned short t, int mode = 0);
     unsigned short toValue(double deg, int mode = 0);
     void    moveTo(double deg, int mode);
@@ -93,6 +96,7 @@ private:
 
     QString    sn_, lutFile_;
     double     max_deg, min_deg;
+    double     max_fb, min_fb;
 
     vector<JrkLUT *> jrklut;
 };

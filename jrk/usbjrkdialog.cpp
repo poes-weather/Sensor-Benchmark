@@ -198,7 +198,8 @@ void USBJrkDialog::onJrkReadWrite(void)
 
     if(!(wFlags & WF_CALIBRATING)) {
         sfb_deg    = jrkusb->toDegrees(jrkusb->vars.scaledFeedback);
-        target_deg = jrkusb->toDegrees(jrkusb->vars.target, 8);
+        //target_deg = jrkusb->toDegrees(jrkusb->vars.target, 8);
+        target_deg = jrkusb->toDegrees(jrkusb->vars.feedback, 8|16);
 
         str.sprintf("%.3f", target_deg);
         ui->targetDegreesLabel->setText(str);
@@ -461,6 +462,9 @@ void USBJrkDialog::on_applyFeedbackBtn_clicked()
     set_parameter_u16(JRK_PARAMETER_FEEDBACK_DISCONNECT_MAXIMUM, ui->feedbackDisconnectMax->value());
 
     jrk->control_write(JRK_REQUEST_SET_TYPE, JRK_REQUEST_REINITIALIZE, 0, 0);
+
+    jrkusb->minFeedback(ui->feedbackMin->value());
+    jrkusb->maxFeedback(ui->feedbackMax->value());
 
     setResolution();
 
