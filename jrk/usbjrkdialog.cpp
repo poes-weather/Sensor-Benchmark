@@ -36,6 +36,8 @@
 #include "jrkplotdialog.h"
 #include "jrklut.h"
 #include "jrklutdialog.h"
+#include "osdialog.h"
+
 #include "utils.h"
 
 
@@ -55,16 +57,19 @@ static const int TIMER_INTERVAL_MS = 100;
 #   define RINT(x) (floor(x) + 0.5)
 #endif
 //---------------------------------------------------------------------------
-USBJrkDialog::USBJrkDialog(QString _ini, QWidget *parent) :
+USBJrkDialog::USBJrkDialog(QString _ini, OSDialog *compass_, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::USBJrkDialog)
 {
     ui->setupUi(this);
     setLayout(ui->mainLayout);
+
+    compass = compass_; // compass window must be open...
     ini = _ini;
 
-    ui->pushButton->setVisible(false);
+    //ui->recordLUTButton->setVisible(false);
 
+    out_fp = NULL;
     jrk = NULL;
     wFlags = 0;
 
@@ -102,6 +107,9 @@ USBJrkDialog::~USBJrkDialog()
     for(; i < jrklut.end(); i++)
         delete *i;
     jrklut.clear();
+
+    if(out_fp)
+        fclose(out_fp);
 
     delete ui;
 }
@@ -161,6 +169,7 @@ void USBJrkDialog::onJrkReadWrite(void)
     QDateTime dt;
     QString str;
     double v, sfb_deg, target_deg;
+    int i;
 
     if(!jrkusb->readVariables())
         return;
@@ -199,6 +208,38 @@ void USBJrkDialog::onJrkReadWrite(void)
 
         str.sprintf("%.3f", sfb_deg - target_deg);
         ui->degErrorLabel->setText(str);
+
+        if(out_fp) {
+            i = abs(dt.time().msecsTo(startdt.time()));
+            if(i >= 1000) {
+                startdt = QDateTime::currentDateTime();
+
+#if 0
+
+                fprintf(out_fp, "Target-%04d=%d\n", rec_count, jrkusb->vars.target);
+                fprintf(out_fp, "Degrees-%04d=%f\n", rec_count, jrkusb->toDegrees(jrkusb->vars.target));
+
+#else
+
+                //fprintf(out_fp, "Target\tFeedback\tJrk Degrees\tTrue degrees\n");
+                fprintf(out_fp, "%d\t%d\t%.3f\t%.3f\n",
+                        jrkusb->vars.target,
+                        jrkusb->vars.feedback,
+                        jrkusb->toDegrees(jrkusb->vars.target),
+                        compass->getPitch());
+
+#endif
+
+                if(jrkusb->vars.target == 4095)
+                    on_recordLUTButton_clicked();
+                else
+                    ui->targetSlider->setValue(jrkusb->vars.target + 50);
+
+                rec_count++;
+            }
+
+
+        }
     }
 
 #if 0
@@ -879,6 +920,43 @@ void USBJrkDialog::on_editLUTbtn_clicked()
 void USBJrkDialog::on_targetTodegreesLUTcb_clicked()
 {
     jrkusb->setFlag(JRK_USE_LUT, ui->targetTodegreesLUTcb->isChecked());
+}
+
+//---------------------------------------------------------------------------
+void USBJrkDialog::on_recordLUTButton_clicked()
+{
+    if(out_fp) {
+        fclose(out_fp);
+        out_fp = NULL;
+
+        ui->recordLUTButton->setText("Start");
+
+        return;
+    }
+
+
+    if(!jrk || !compass || !compass->isOpen()) {
+        qDebug("FATAL Error: on_recordLUTButton_clicked.");
+        return;
+    }
+
+    ui->targetSlider->setValue(0);
+
+    rec_count = 0;
+
+    out_fp = fopen("jrk-lut-test.txt", "w");
+    if(!out_fp)
+        return;
+
+    startdt = QDateTime::currentDateTime();
+#if 0
+    fprintf(out_fp, "[JrkTargetToDegrees]\n");
+#else
+    fprintf(out_fp, "Target\tFeedback\tJrk Degrees\tTrue degrees\n");
+#endif
+
+
+    ui->recordLUTButton->setText("Stop");
 }
 
 //---------------------------------------------------------------------------

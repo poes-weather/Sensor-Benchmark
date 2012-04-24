@@ -141,7 +141,7 @@ void MainWindow::on_actionACM_Control_triggered()
 //---------------------------------------------------------------------------
 void MainWindow::on_actionUSB_Contol_triggered()
 {
-    USBJrkDialog dlg(qApp->applicationDirPath() + "/jrk.ini", this);
+    USBJrkDialog dlg(qApp->applicationDirPath() + "/jrk.ini", os5k, this);
 
     dlg.exec();
 }

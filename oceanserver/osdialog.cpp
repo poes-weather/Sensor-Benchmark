@@ -62,7 +62,6 @@ OSDialog::OSDialog(QString ini, QWidget *parent) :
     connect(port, SIGNAL(readyRead()), this, SLOT(onDataAvailable()));
     connect(this, SIGNAL(finished(int)), this, SLOT(onDialog_finished(int)));
 
-
     rxbuff = (char *) malloc(RX_BUFF_SIZE + 1);
     txbuff = (char *) malloc(TX_BUFF_SIZE + 1);
     tmpbuff = (char *) malloc(RX_BUFF_SIZE + 1);
@@ -70,8 +69,13 @@ OSDialog::OSDialog(QString ini, QWidget *parent) :
     modes = 0;
 
     offset_heading = 0;
-    offset_pitch = 26.6;
+    offset_pitch = 0;
     offset_roll = 0;
+
+    heading = 0;
+    pitch = 0;
+    roll = 0;
+    temperature = 0;
 
     readSettings();
 }
@@ -167,6 +171,12 @@ void OSDialog::readSettings(void)
             bits |= (1 << i);
     }
 
+}
+
+//---------------------------------------------------------------------------
+bool OSDialog::isOpen(void)
+{
+    return port->isOpen();
 }
 
 //---------------------------------------------------------------------------

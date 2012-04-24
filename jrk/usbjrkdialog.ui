@@ -646,9 +646,9 @@
           </widget>
          </item>
          <item row="8" column="3">
-          <widget class="QPushButton" name="pushButton">
+          <widget class="QPushButton" name="recordLUTButton">
            <property name="enabled">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
            <property name="text">
             <string>Record LUT</string>

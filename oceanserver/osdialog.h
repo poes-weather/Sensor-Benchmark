@@ -45,6 +45,13 @@ public:
     explicit OSDialog(QString ini, QWidget *parent = 0);
     ~OSDialog();
 
+    bool isOpen(void);
+
+    double getHeading(void)     { return heading; }
+    double getPitch(void)       { return pitch; }
+    double getRoll(void)        { return roll; }
+    double getTemperature(void) { return temperature; }
+
 protected:
     void writeSettings(void);
     void readSettings(void);

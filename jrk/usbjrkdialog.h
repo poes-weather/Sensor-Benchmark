@@ -24,6 +24,7 @@
 
 #include <QDialog>
 #include <QDateTime>
+#include <stdio.h>
 #include "jrk_protocol.h"
 
 class QTimer;
@@ -32,6 +33,8 @@ class TUSBDevice;
 class TJrkUSB;
 class JrkPlotDialog;
 class JrkLUT;
+
+class OSDialog;
 
 using namespace std;
 namespace Ui {
@@ -44,7 +47,7 @@ class USBJrkDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit USBJrkDialog(QString _ini, QWidget *parent = 0);
+    explicit USBJrkDialog(QString _ini, OSDialog *compass_, QWidget *parent = 0);
     ~USBJrkDialog();
 
 private slots:
@@ -80,6 +83,8 @@ private slots:
 
     void on_targetTodegreesLUTcb_clicked();
 
+    void on_recordLUTButton_clicked();
+
 protected:
     void readSettings(void);
     void writeSettings(void);
@@ -105,19 +110,21 @@ private:
     TJrkUSB       *jrkusb;
     JrkPlotDialog *jrkPlot;
 
-    //jrk_variables      vars;
     jrk_pid_variables  pid_vars;
     vector<JrkLUT *>   jrklut;
 
+    OSDialog *compass;
     unsigned char *iobuffer;
     unsigned long timer_loop;
     unsigned short last_err;
 
-    double gotodeg, current_deg;
-    int    gototarget;
+    double current_deg;
+    //int    gototarget;
 
     QDateTime startdt;
     double    start_deg;
+    int       rec_count;
+    FILE      *out_fp;
 
 };
 
