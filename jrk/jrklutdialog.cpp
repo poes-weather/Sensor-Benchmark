@@ -95,28 +95,31 @@ void JrkLUTDialog::load(QString inifile)
 
     QString target, target_i, degrees, degrees_i;
     QSettings reg(inifile, QSettings::IniFormat);
-    int i = 0;
+    int i, j = 0;
 
     reg.beginGroup("JrkTargetToDegrees");
 
-    while(true) {
+    for(i=0; i <= 4095; i++) {
         target_i.sprintf("Target-%04d", i);
-        degrees_i.sprintf("Degrees-%04d", i);
-
         target = reg.value(target_i, "").toString();
+        if(target.isEmpty())
+            continue;
+
+        degrees_i.sprintf("Degrees-%04d", i);
         degrees = reg.value(degrees_i, "").toString();
 
-        if(target.isEmpty() || degrees.isEmpty())
+        if(degrees.isEmpty())
             break;
 
-        if(ui->luttable->rowCount() <= i)
-            ui->luttable->setRowCount(i+1);
+        if(ui->luttable->rowCount() <= j)
+            ui->luttable->setRowCount(j+1);
 
-        ui->luttable->setItem(i, 0, new QTableWidgetItem(target));
-        ui->luttable->setItem(i, 1, new QTableWidgetItem(degrees));
+        ui->luttable->setItem(j, 0, new QTableWidgetItem(target));
+        ui->luttable->setItem(j, 1, new QTableWidgetItem(degrees));
 
-        i++;
+        j++;
     }
+    //qDebug("i: %d", i);
 
     reg.endGroup();
     lutFile = inifile;

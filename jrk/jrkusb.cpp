@@ -41,6 +41,7 @@ TJrkUSB::TJrkUSB(void)
 
     min_deg = 0;
     max_deg = 360;
+    offset_deg = 0;
 
     iobuff = (unsigned char *) malloc(JRK_IO_BUF_SIZE + 1);
     memset(&vars, 0, sizeof(jrk_variables_t));
@@ -107,6 +108,7 @@ void TJrkUSB::readSettings(QSettings *reg)
 
     reg->endGroup();
 
+    calcOffsetDegrees();
     loadLUT();
 }
 
@@ -118,13 +120,27 @@ void TJrkUSB::writeSettings(QSettings *reg)
 
     reg->beginGroup(sn_);
 
-    reg->value("Flags", jrk_flags);
-    reg->value("LUTFile", lutFile_);
+    reg->setValue("Flags", jrk_flags);
+    reg->setValue("LUTFile", lutFile_);
 
     reg->setValue("MaxDegrees", max_deg);
     reg->setValue("MinDegrees", min_deg);
 
     reg->endGroup();
+}
+
+//---------------------------------------------------------------------------
+void TJrkUSB::calcOffsetDegrees(void)
+{
+    double deg = 0;
+    double delta = (max_deg - min_deg) / 2.0;
+
+    while(deg < delta)
+        deg += 90;
+
+    offset_deg = deg - delta;
+
+    qDebug("offset deg: %f", offset_deg);
 }
 
 //---------------------------------------------------------------------------
@@ -249,7 +265,7 @@ unsigned short TJrkUSB::toValue(double deg, int mode)
 double TJrkUSB::toDegrees(unsigned short t, int mode)
 {
     double deg = min_deg;
-    double delta_fb;
+    double delta_fb, t0;
 
     if(!isOpen())
         return deg;
@@ -267,16 +283,21 @@ double TJrkUSB::toDegrees(unsigned short t, int mode)
 
     t &= 0x0fff;
 
-    if(mode& 16)
+    if(mode& 16) {
         delta_fb = max_fb - min_fb;
-    else
+        t0 = t - min_fb;
+    }
+    else {
         delta_fb = 4095;
+        t0 = t;
+    }
 
     if(delta_fb <= 0)
         return min_deg;
 
     // default 12 bit
-    deg = min_deg + (max_deg - min_deg) * ((double) t) / delta_fb;
+    deg = min_deg + (max_deg - min_deg) * t0 / delta_fb;
+//    deg = offset_deg + (max_deg - min_deg) * t0 / delta_fb;
 
     // check
     if(mode & 8)
@@ -441,24 +462,32 @@ void TJrkUSB::loadLUT(void)
 
     QSettings reg(lutFile_, QSettings::IniFormat);
 
-    QString d_str, t_str;
+    QString d_str, t_str, str;
     double  d;
     int     t, i = 0;
 
     reg.beginGroup("JrkTargetToDegrees");
 
-    while(true) {
+    for(i=0; i <= 4095; i++) {
         t_str.sprintf("Target-%04d", i);
-        d_str.sprintf("Degrees-%04d", i);
+        str = reg.value(t_str, "").toString();
+        if(str.isEmpty())
+            continue;
 
-        t = reg.value(t_str, -999).toInt();
-        d = reg.value(d_str, -999).toDouble();
+        t = str.toInt();
+
+        d_str.sprintf("Degrees-%04d", i);
+        str = reg.value(d_str, "").toString();
+
+        if(str.isEmpty())
+            break;
+
+        d = str.toDouble();
 
         if(t < 0 || t > 4095 || d < 0 || d > 360)
             break;
 
         jrklut.push_back(new JrkLUT(t, d));
-        i++;
     }
 
     reg.endGroup();

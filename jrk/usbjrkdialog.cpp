@@ -121,9 +121,12 @@ void USBJrkDialog::onJrkDialog_finished(int)
 
     if(jrk) {
         on_stopBtn_clicked();
-        usleep(10 * 1000);
 
         writeSettings();
+
+        if(out_fp)
+            on_recordLUTButton_clicked();
+
     }
 }
 
@@ -197,9 +200,8 @@ void USBJrkDialog::onJrkReadWrite(void)
 
 
     if(!(wFlags & WF_CALIBRATING)) {
-        sfb_deg    = jrkusb->toDegrees(jrkusb->vars.scaledFeedback);
-        //target_deg = jrkusb->toDegrees(jrkusb->vars.target, 8);
-        target_deg = jrkusb->toDegrees(jrkusb->vars.feedback, 8|16);
+        sfb_deg    = jrkusb->toDegrees(jrkusb->vars.scaledFeedback, 8);
+        target_deg = jrkusb->toDegrees(jrkusb->vars.target, 8);
 
         str.sprintf("%.3f", target_deg);
         ui->targetDegreesLabel->setText(str);
@@ -211,14 +213,25 @@ void USBJrkDialog::onJrkReadWrite(void)
         ui->degErrorLabel->setText(str);
 
         if(out_fp) {
-            i = abs(dt.time().msecsTo(startdt.time()));
-            if(i >= 1000) {
+            i = abs(startdt.time().secsTo(dt.time()));
+            if(i >= (ui->recDelaySb->value())) {
                 startdt = QDateTime::currentDateTime();
 
-#if 0
+#if 1
 
-                fprintf(out_fp, "Target-%04d=%d\n", rec_count, jrkusb->vars.target);
-                fprintf(out_fp, "Degrees-%04d=%f\n", rec_count, jrkusb->toDegrees(jrkusb->vars.target));
+                v = compass->getPitch();
+
+                qDebug("pitch read: %f", v);
+
+                if(v < 0)
+                    v = 90.0 + v;
+                else
+                    v = v + 90.0;
+
+                qDebug("pitch modified: %d:%f", ui->targetSlider->value(), v);
+
+                fprintf(out_fp, "Target-%04d=%d\n", ui->targetSlider->value(), jrkusb->vars.target);
+                fprintf(out_fp, "Degrees-%04d=%f\n", ui->targetSlider->value(), v);
 
 #else
 
@@ -231,10 +244,15 @@ void USBJrkDialog::onJrkReadWrite(void)
 
 #endif
 
-                if(jrkusb->vars.target == 4095)
-                    on_recordLUTButton_clicked();
-                else
-                    ui->targetSlider->setValue(jrkusb->vars.target + 50);
+                if(ui->targetSlider->value() == 4095) {
+                    on_stopBtn_clicked();
+
+                    return; // done
+                }
+
+                i = ui->targetSlider->value() + ui->recTargetStepSb->value();
+                ui->targetSlider->setValue(i);
+
 
                 rec_count++;
             }
@@ -503,6 +521,9 @@ void USBJrkDialog::on_stopBtn_clicked()
 
     jrk->control_write(JRK_REQUEST_SET_TYPE, JRK_REQUEST_MOTOR_OFF, 0, 0);
 
+    if(out_fp)
+        on_recordLUTButton_clicked();
+
     wFlags &= ~WF_NO_UPDATE;
     wFlags = 0;
 }
@@ -532,6 +553,7 @@ void USBJrkDialog::on_applyDegBtn_clicked()
 
     jrkusb->minDegrees(ui->mindegSb->value());
     jrkusb->maxDegrees(ui->maxdegSb->value());
+    jrkusb->calcOffsetDegrees();
 
     writeSettings();
 
@@ -547,13 +569,12 @@ void USBJrkDialog::setResolution(void)
     QString str;
     double delta_fb = ui->feedbackMax->value() - ui->feedbackMin->value();
     double delta_deg = ui->maxdegSb->value() - ui->mindegSb->value();
-    double t_resolution = delta_fb / 4095.0;
-    double d_resolution = 0;
 
     if(delta_deg >= 0 && delta_deg <= 360)
-        d_resolution = t_resolution / delta_deg;
+        str.sprintf("%.3f", delta_deg / delta_fb);
+    else
+        str = "?";
 
-    str.sprintf("%.3f", d_resolution);
     ui->degResolutionLabel->setText(str);
 }
 
@@ -933,10 +954,11 @@ void USBJrkDialog::on_recordLUTButton_clicked()
         fclose(out_fp);
         out_fp = NULL;
 
-        ui->recordLUTButton->setText("Start");
+        ui->recordLUTButton->setText("Record");
 
         return;
     }
+
 
 
     if(!jrk || !compass || !compass->isOpen()) {
@@ -944,16 +966,24 @@ void USBJrkDialog::on_recordLUTButton_clicked()
         return;
     }
 
-    ui->targetSlider->setValue(0);
+    if(ui->targetSlider->value() != 0) {
+        qDebug("FATAL Error: set target slider should be at 0 (zero)!");
+        return;
+    }
+
+    jrkusb->setTarget(0); // power on
 
     rec_count = 0;
+    startdt = QDateTime::currentDateTime();
 
     out_fp = fopen("jrk-lut-test.txt", "w");
-    if(!out_fp)
+    if(!out_fp) {
+        qDebug("FATAL Error: failed to write to file!");
         return;
+    }
 
-    startdt = QDateTime::currentDateTime();
-#if 0
+
+#if 1
     fprintf(out_fp, "[JrkTargetToDegrees]\n");
 #else
     fprintf(out_fp, "Target\tFeedback\tJrk Degrees\tTrue degrees\n");
