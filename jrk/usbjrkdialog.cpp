@@ -219,16 +219,8 @@ void USBJrkDialog::onJrkReadWrite(void)
 
 #if 1
 
-                v = compass->getPitch();
-
-                qDebug("pitch read: %f", v);
-
-                if(v < 0)
-                    v = 90.0 + v;
-                else
-                    v = v + 90.0;
-
-                qDebug("pitch modified: %d:%f", ui->targetSlider->value(), v);
+                v = getComapssDegrees();
+                qDebug("compass degrees: %d:%f", ui->targetSlider->value(), v);
 
                 fprintf(out_fp, "Target-%04d=%d\n", ui->targetSlider->value(), jrkusb->vars.target);
                 fprintf(out_fp, "Degrees-%04d=%f\n", ui->targetSlider->value(), v);
@@ -295,6 +287,37 @@ void USBJrkDialog::onJrkReadWrite(void)
         }
 
 
+}
+
+//---------------------------------------------------------------------------
+double USBJrkDialog::getComapssDegrees(void)
+{
+    double v = 0;
+
+    if(!compass || !compass->isOpen())
+        return v;
+
+    switch(ui->osAxisCb->currentIndex()) {
+    case 0:
+    {
+        v = compass->getPitch();
+        // adjust it to be from 0 to 180 degrees and not -90 to +90 degrees
+        if(v < 0)
+            v = 90.0 + v;
+        else
+            v = v + 90.0;
+
+        break;
+    }
+
+    case 1: v = compass->getHeading(); break;
+    case 2: v = compass->getRoll(); break;
+
+    default:
+        v = 0;
+    }
+
+    return v;
 }
 
 //---------------------------------------------------------------------------

@@ -512,7 +512,7 @@
           <x>10</x>
           <y>10</y>
           <width>519</width>
-          <height>281</height>
+          <height>305</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout_2">
@@ -537,14 +537,14 @@
            </property>
           </widget>
          </item>
-         <item row="4" column="0">
+         <item row="5" column="0">
           <widget class="QLabel" name="label_40">
            <property name="text">
             <string>Step size</string>
            </property>
           </widget>
          </item>
-         <item row="7" column="0">
+         <item row="8" column="0">
           <widget class="QLabel" name="label_43">
            <property name="text">
             <string>Go to degrees</string>
@@ -594,7 +594,7 @@
            </property>
           </widget>
          </item>
-         <item row="7" column="1">
+         <item row="8" column="1">
           <widget class="QDoubleSpinBox" name="gotoDegSb">
            <property name="decimals">
             <number>3</number>
@@ -607,21 +607,21 @@
            </property>
           </widget>
          </item>
-         <item row="7" column="2">
+         <item row="8" column="2">
           <widget class="QPushButton" name="gotodegBtn">
            <property name="text">
             <string>Go</string>
            </property>
           </widget>
          </item>
-         <item row="8" column="1">
+         <item row="9" column="1">
           <widget class="QPushButton" name="gotoMinBtn">
            <property name="text">
             <string>Go to min</string>
            </property>
           </widget>
          </item>
-         <item row="8" column="2">
+         <item row="9" column="2">
           <widget class="QPushButton" name="gotoMaxBtn">
            <property name="text">
             <string>Go to max</string>
@@ -654,7 +654,7 @@
            </property>
           </widget>
          </item>
-         <item row="5" column="0">
+         <item row="6" column="0">
           <widget class="QLabel" name="label_12">
            <property name="text">
             <string>Delay [sec]</string>
@@ -664,11 +664,11 @@
          <item row="3" column="0" colspan="3">
           <widget class="QLabel" name="label_15">
            <property name="text">
-            <string>Record look-up table using OS5000 compass</string>
+            <string>Record lookup table using OS5000 compass</string>
            </property>
           </widget>
          </item>
-         <item row="4" column="1">
+         <item row="5" column="1">
           <widget class="QSpinBox" name="recTargetStepSb">
            <property name="minimum">
             <number>1</number>
@@ -681,7 +681,7 @@
            </property>
           </widget>
          </item>
-         <item row="5" column="1">
+         <item row="6" column="1">
           <widget class="QSpinBox" name="recDelaySb">
            <property name="minimum">
             <number>1</number>
@@ -697,7 +697,7 @@
            </property>
           </widget>
          </item>
-         <item row="5" column="2">
+         <item row="6" column="2">
           <widget class="QPushButton" name="recordLUTButton">
            <property name="enabled">
             <bool>true</bool>
@@ -714,10 +714,36 @@
            </property>
           </widget>
          </item>
-         <item row="6" column="0">
+         <item row="7" column="0">
           <widget class="QLabel" name="label_44">
            <property name="text">
-            <string> </string>
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <widget class="QComboBox" name="osAxisCb">
+           <item>
+            <property name="text">
+             <string>Pitch</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Heading</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Roll</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="label_45">
+           <property name="text">
+            <string>Axis</string>
            </property>
           </widget>
          </item>

@@ -97,6 +97,7 @@ protected:
     double calcDerivative(void);
     void toggleErrors(void);
     void setResolution(void);
+    double getComapssDegrees(void);
 
 
 private:
