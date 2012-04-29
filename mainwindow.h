@@ -34,6 +34,7 @@ class JrkDialog;
 class QboxDialog;
 class OSDialog;
 class SI21xxDialog;
+class USBJrkDialog;
 
 //---------------------------------------------------------------------------
 class MainWindow : public QMainWindow {
@@ -53,6 +54,7 @@ private:
     QboxDialog   *qbox;
     OSDialog     *os5k;
     SI21xxDialog *si21xx;
+    USBJrkDialog *usbjrk;
 
 
 private slots:

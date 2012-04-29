@@ -67,8 +67,6 @@ USBJrkDialog::USBJrkDialog(QString _ini, OSDialog *compass_, QWidget *parent) :
     compass = compass_; // compass window must be open...
     ini = _ini;
 
-    //ui->recordLUTButton->setVisible(false);
-
     out_fp = NULL;
     jrk = NULL;
     wFlags = 0;
@@ -81,11 +79,12 @@ USBJrkDialog::USBJrkDialog(QString _ini, OSDialog *compass_, QWidget *parent) :
     jrkPlot = new JrkPlotDialog(&jrkusb->vars, &pid_vars, this);
 
     jrk_timer = new QTimer(this);
-    jrk_timer->setInterval(TIMER_INTERVAL_MS); //10;
+    jrk_timer->setInterval(TIMER_INTERVAL_MS);
+
     connect(jrk_timer, SIGNAL(timeout()), this, SLOT(onJrkReadWrite()));
     connect(this, SIGNAL(finished(int)), this, SLOT(onJrkDialog_finished(int)));
 
-    on_refreshBtn_clicked();
+    jrk_timer->stop();
 }
 
 //---------------------------------------------------------------------------
@@ -131,6 +130,14 @@ void USBJrkDialog::onJrkDialog_finished(int)
 }
 
 //---------------------------------------------------------------------------
+void USBJrkDialog::init(void)
+{
+    this->show();
+
+    on_refreshBtn_clicked();
+}
+
+//---------------------------------------------------------------------------
 void USBJrkDialog::readSettings(void)
 {
     QFile file(ini);
@@ -150,13 +157,6 @@ void USBJrkDialog::readSettings(void)
 //---------------------------------------------------------------------------
 void USBJrkDialog::writeSettings(void)
 {
-#if 0
-    QFile file(ini);
-
-    if(file.exists(ini))
-        file.remove();
-#endif
-
     QSettings reg(ini, QSettings::IniFormat);
     jrkusb->writeSettings(&reg);
 
@@ -166,7 +166,7 @@ void USBJrkDialog::writeSettings(void)
 //---------------------------------------------------------------------------
 void USBJrkDialog::onJrkReadWrite(void)
 {
-    if(!jrk || (wFlags & (WF_INIT | WF_NO_UPDATE)))
+    if(!this->isVisible() || !jrk || (wFlags & (WF_INIT | WF_NO_UPDATE)))
         return;
 
     QDateTime dt;
@@ -311,7 +311,8 @@ double USBJrkDialog::getComapssDegrees(void)
     }
 
     case 1: v = compass->getHeading(); break;
-    case 2: v = compass->getRoll(); break;
+    case 2: v = compass->getHeading() * 2.0; break;
+    case 3: v = compass->getRoll(); break;
 
     default:
         v = 0;

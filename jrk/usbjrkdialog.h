@@ -50,6 +50,8 @@ public:
     explicit USBJrkDialog(QString _ini, OSDialog *compass_, QWidget *parent = 0);
     ~USBJrkDialog();
 
+    void init(void);
+
 private slots:
     void onJrkReadWrite(void);
     void onJrkDialog_finished(int result);
@@ -82,7 +84,6 @@ private slots:
     void on_editLUTbtn_clicked();
 
     void on_targetTodegreesLUTcb_clicked();
-
     void on_recordLUTButton_clicked();
 
 protected:

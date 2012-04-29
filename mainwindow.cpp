@@ -60,6 +60,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ini = qApp->applicationDirPath() + "/os5000.ini";
     os5k = new OSDialog(ini, this);
 
+    ini = qApp->applicationDirPath() + "/jrk.ini";
+    usbjrk = new USBJrkDialog(ini, os5k, this);
+
     QRect rect = QApplication::desktop()->availableGeometry(this);
     move(rect.center() - this->rect().center());
 }
@@ -72,6 +75,7 @@ MainWindow::~MainWindow()
     delete gps;
     delete jrkACM;
     delete os5k;
+    delete usbjrk;
 
     if(qbox != NULL)
         delete qbox;
@@ -141,7 +145,12 @@ void MainWindow::on_actionACM_Control_triggered()
 //---------------------------------------------------------------------------
 void MainWindow::on_actionUSB_Contol_triggered()
 {
+#if 1
+    if(!usbjrk->isVisible())
+        usbjrk->init();
+#else
     USBJrkDialog dlg(qApp->applicationDirPath() + "/jrk.ini", os5k, this);
 
     dlg.exec();
+#endif
 }
