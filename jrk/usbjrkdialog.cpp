@@ -23,6 +23,7 @@
 #include <QDateTime>
 #include <QFile>
 #include <QSettings>
+#include <QFileDialog>
 #include <unistd.h>
 #include <time.h>
 #include <stdio.h>
@@ -995,12 +996,17 @@ void USBJrkDialog::on_recordLUTButton_clicked()
         return;
     }
 
+    QString inifile = QFileDialog::getSaveFileName(this, tr("Save LUT File"), "jrk/conf/", "INI files (*.ini);;All files (*.*)", 0);
+
+    if(inifile.isEmpty())
+        return;
+
     jrkusb->setTarget(0); // power on
 
     rec_count = 0;
     startdt = QDateTime::currentDateTime();
 
-    out_fp = fopen("jrk-lut-test.txt", "w");
+    out_fp = fopen(inifile.toStdString().c_str(), "w");
     if(!out_fp) {
         qDebug("FATAL Error: failed to write to file!");
         return;
