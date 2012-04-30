@@ -133,5 +133,29 @@ typedef struct jrk_pid_variables_t
 #define JRK_PARAMETER_ERROR_ENABLE                      130 // 2 byte unsigned value.  See below for the meanings of the bits.
 #define JRK_PARAMETER_ERROR_LATCH                       132 // 2 byte unsigned value.  See below for the meanings of the bits.
 
+// There are several different errors.  Each error is represented by a
+// different bit number from 0 to 15.
+#define JRK_ERROR_AWAITING_COMMAND         0  // Always enabled.  Never latched.
+#define JRK_ERROR_NO_POWER                 1  // Always enabled.
+#define JRK_ERROR_MOTOR_DRIVER             2  // Always enabled.
+#define JRK_ERROR_INPUT_INVALID            3  // Always enabled.
+#define JRK_ERROR_INPUT_DISCONNECT         4
+#define JRK_ERROR_FEEDBACK_DISCONNECT      5
+#define JRK_ERROR_MAXIMUM_CURRENT_EXCEEDED 6
+#define JRK_ERROR_SERIAL_SIGNAL            7  // Always latched.
+#define JRK_ERROR_SERIAL_OVERRUN           8  // Always latched.
+#define JRK_ERROR_SERIAL_BUFFER_FULL       9  // Always latched.
+#define JRK_ERROR_SERIAL_CRC               10 // Always latched.
+#define JRK_ERROR_SERIAL_PROTOCOL          11 // Always latched.
+#define JRK_ERROR_SERIAL_TIMEOUT           12 // Always latched.
+
+#define JRK_ERROR(x) ((unsigned short) 1 << x)
+
+// Certain errors are always enabled, so their corresponding error enable bit is ignored.
+#define JRK_ERRORS_ALWAYS_ENABLED (((unsigned short)1<<JRK_ERROR_AWAITING_COMMAND) | ((unsigned short)1<<JRK_ERROR_NO_POWER) | ((unsigned short)1<<JRK_ERROR_MOTOR_DRIVER) | ((unsigned short)1<<JRK_ERROR_INPUT_INVALID))
+
+// Certain errors are always latched, so their corresponding latch bit is ignored.
+#define JRK_ERRORS_ALWAYS_LATCHED (((unsigned short)1<<JRK_ERROR_AWAITING_COMMAND) | ((unsigned short)1<<JRK_ERROR_SERIAL_SIGNAL) | ((unsigned short)1<<JRK_ERROR_SERIAL_CRC) | ((unsigned short)1<<JRK_ERROR_SERIAL_PROTOCOL) | ((unsigned short)1<<JRK_ERROR_SERIAL_TIMEOUT) | ((unsigned short)1<<JRK_ERROR_SERIAL_BUFFER_FULL))
+
 
 #endif // JRK_PROTOCOL_H

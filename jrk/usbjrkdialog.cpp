@@ -254,38 +254,19 @@ void USBJrkDialog::onJrkReadWrite(void)
         }
     }
 
-#if 0
-        d_deg = maxdeg - mindeg;
-        d_fb = 4095;
-        current_deg = 0;
+    if(wFlags & WF_CALIB_MIN_FB) {
+        ui->feedbackMin->setValue(jrkusb->vars.scaledFeedback);
+        ui->feedbackDisconnectMin->setValue(jrkusb->vars.scaledFeedback / 2);
 
-        if(d_fb > 0 && d_deg > 0) {
-            sfb = vars.scaledFeedback;
-            degrees = mindeg + (d_deg / d_fb) * sfb;
-            current_deg = degrees;
+        wFlags &= ~WF_CALIB_MIN_FB;
+    }
 
-            str.sprintf("%.3f", degrees);
-            ui->degreesLabel->setText(str);
+    if(wFlags & WF_CALIB_MAX_FB) {
+        ui->feedbackMax->setValue(jrkusb->vars.scaledFeedback);
+        ui->feedbackDisconnectMax->setValue(jrkusb->vars.scaledFeedback + (4095 - jrkusb->vars.scaledFeedback) / 2);
 
-            v = ((degrees * pid_vars.error) / 4095.0);
-            str.sprintf("%.3f", v);
-            ui->degErrorLabel->setText(str);
-        }
-#endif
-
-        if(wFlags & WF_CALIB_MIN_FB) {
-            ui->feedbackMin->setValue(jrkusb->vars.scaledFeedback);
-            ui->feedbackDisconnectMin->setValue(jrkusb->vars.scaledFeedback / 2);
-
-            wFlags &= ~WF_CALIB_MIN_FB;
-        }
-
-        if(wFlags & WF_CALIB_MAX_FB) {
-            ui->feedbackMax->setValue(jrkusb->vars.scaledFeedback);
-            ui->feedbackDisconnectMax->setValue(jrkusb->vars.scaledFeedback + (4095 - jrkusb->vars.scaledFeedback) / 2);
-
-            wFlags &= ~WF_CALIB_MAX_FB;
-        }
+        wFlags &= ~WF_CALIB_MAX_FB;
+    }
 
 
 }
@@ -312,8 +293,7 @@ double USBJrkDialog::getComapssDegrees(void)
     }
 
     case 1: v = compass->getHeading(); break;
-    case 2: v = compass->getHeading() * 2.0; break;
-    case 3: v = compass->getRoll(); break;
+    case 2: v = compass->getRoll(); break;
 
     default:
         v = 0;
@@ -382,7 +362,7 @@ void USBJrkDialog::readParameters(void)
     wFlags |= WF_INIT;
 
     unsigned char u8, u8_2;
-    unsigned short u16;
+    unsigned short u16, u16_2;
 
     // read feedback parameters
     qDebug("read feedback parameters");
@@ -454,6 +434,12 @@ void USBJrkDialog::readParameters(void)
     u8 = jrk->control_read_u8(JRK_REQUEST_GET_TYPE, JRK_REQUEST_GET_PARAMETER, 0, JRK_PARAMETER_FEEDBACK_DEAD_ZONE);
     ui->feedbackDeadZoneSb->setValue(u8);
 
+    // error settings
+    u16 = jrk->control_read_u16(JRK_REQUEST_GET_TYPE, JRK_REQUEST_GET_PARAMETER, 0, JRK_PARAMETER_ERROR_ENABLE);
+    u16_2 = jrk->control_read_u16(JRK_REQUEST_GET_TYPE, JRK_REQUEST_GET_PARAMETER, 0, JRK_PARAMETER_ERROR_LATCH);
+    setErrorSettings(u16, u16_2);
+
+
     // set target slider etc
     jrkusb->readVariables();
 
@@ -468,6 +454,115 @@ void USBJrkDialog::readParameters(void)
     calcProportional();
     calcIntegral();
     calcDerivative();
+}
+
+//---------------------------------------------------------------------------
+void USBJrkDialog::setErrorSettings(quint16 error_enable, quint16 error_latch)
+{
+    quint16 enable, latch;
+
+    latch  = error_latch & JRK_ERROR(JRK_ERROR_NO_POWER);
+    ui->err_powerCb->setCurrentIndex(latch ? 1:0);
+
+    latch  = error_latch & JRK_ERROR(JRK_ERROR_MOTOR_DRIVER);
+    ui->err_motordrvCb->setCurrentIndex(latch ? 1:0);
+
+    latch  = error_latch & JRK_ERROR(JRK_ERROR_INPUT_INVALID);
+    ui->err_inputinvalidCb->setCurrentIndex(latch ? 1:0);
+
+    enable = error_enable & JRK_ERROR(JRK_ERROR_INPUT_DISCONNECT);
+    latch  = error_latch & JRK_ERROR(JRK_ERROR_INPUT_DISCONNECT);
+    ui->err_inputdisconnectCb->setCurrentIndex(to3itemIndex(enable, latch));
+
+    enable = error_enable & JRK_ERROR(JRK_ERROR_FEEDBACK_DISCONNECT);
+    latch  = error_latch & JRK_ERROR(JRK_ERROR_FEEDBACK_DISCONNECT);
+    ui->err_fbdisconnectCb->setCurrentIndex(to3itemIndex(enable, latch));
+
+    enable = error_enable & JRK_ERROR(JRK_ERROR_MAXIMUM_CURRENT_EXCEEDED);
+    latch  = error_latch & JRK_ERROR(JRK_ERROR_MAXIMUM_CURRENT_EXCEEDED);
+    ui->err_currentCb->setCurrentIndex(to3itemIndex(enable, latch));
+}
+
+//---------------------------------------------------------------------------
+void USBJrkDialog::on_writeErrorsButton_clicked()
+{
+    if(!jrk)
+        return;
+
+    quint16 enabled = jrk->control_read_u16(JRK_REQUEST_GET_TYPE, JRK_REQUEST_GET_PARAMETER, 0, JRK_PARAMETER_ERROR_ENABLE);
+    quint16 latched = jrk->control_read_u16(JRK_REQUEST_GET_TYPE, JRK_REQUEST_GET_PARAMETER, 0, JRK_PARAMETER_ERROR_LATCH);
+
+    twoItemsToError(&latched, JRK_ERROR(JRK_ERROR_NO_POWER), ui->err_powerCb->currentIndex());
+    twoItemsToError(&latched, JRK_ERROR(JRK_ERROR_MOTOR_DRIVER), ui->err_motordrvCb->currentIndex());
+    twoItemsToError(&latched, JRK_ERROR(JRK_ERROR_INPUT_INVALID), ui->err_inputinvalidCb->currentIndex());
+
+
+    threeItemsToError(&enabled, &latched, JRK_ERROR(JRK_ERROR_INPUT_DISCONNECT), ui->err_inputdisconnectCb->currentIndex());
+    threeItemsToError(&enabled, &latched, JRK_ERROR(JRK_ERROR_FEEDBACK_DISCONNECT), ui->err_fbdisconnectCb->currentIndex());
+    threeItemsToError(&enabled, &latched, JRK_ERROR(JRK_ERROR_MAXIMUM_CURRENT_EXCEEDED), ui->err_currentCb->currentIndex());
+
+    enabled |= JRK_ERRORS_ALWAYS_ENABLED;
+    latched |= JRK_ERRORS_ALWAYS_LATCHED;
+
+    set_parameter_u16(JRK_PARAMETER_ERROR_ENABLE, enabled);
+    set_parameter_u16(JRK_PARAMETER_ERROR_LATCH, latched);
+}
+
+
+//---------------------------------------------------------------------------
+int USBJrkDialog::to3itemIndex(bool enable, bool latch)
+{
+    /*
+      i = 1 = disable
+      i = 2 = enable
+      i = 3 = enable and latch
+      */
+
+    int i = 0;
+
+    if(!enable && !latch)
+        i = 0;
+    else {
+        if(enable)
+            i = 1;
+        if(latch)
+            i = 2;
+    }
+
+    return i;
+}
+
+//---------------------------------------------------------------------------
+void USBJrkDialog::threeItemsToError(quint16 *error_enable, quint16 *error_latch, quint16 value, int index)
+{
+    *error_enable &= ~value;
+    *error_latch &= ~value;
+
+    /*
+      index
+      1 = disable
+      2 = enable
+      3 = enable and latch
+      */
+
+    if(index == 1 || index == 2) {
+        *error_enable |= value;
+        if(index == 2)
+            *error_latch |= value;
+    }
+}
+
+//---------------------------------------------------------------------------
+void USBJrkDialog::twoItemsToError(quint16 *error_latch, quint16 value, int index)
+{
+    *error_latch &= ~value;
+    /*
+      index
+      0 = enable
+      1 = enable and latch
+      */
+    *error_latch |= index == 1 ? value:0;
+
 }
 
 //---------------------------------------------------------------------------
@@ -1024,4 +1119,5 @@ void USBJrkDialog::on_recordLUTButton_clicked()
 }
 
 //---------------------------------------------------------------------------
+
 

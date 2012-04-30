@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1247</width>
-    <height>701</height>
+    <height>762</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -721,7 +721,7 @@
            </property>
           </widget>
          </item>
-         <item row="4" column="1" colspan="2">
+         <item row="4" column="1">
           <widget class="QComboBox" name="osAxisCb">
            <item>
             <property name="text">
@@ -731,11 +731,6 @@
            <item>
             <property name="text">
              <string>Heading</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Heading x 2</string>
             </property>
            </item>
            <item>
@@ -1175,7 +1170,7 @@
           <x>10</x>
           <y>10</y>
           <width>541</width>
-          <height>426</height>
+          <height>428</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout_6">
@@ -1194,15 +1189,17 @@
          </item>
          <item row="1" column="2">
           <widget class="QLabel" name="label_41">
-           <property name="text">
-            <string>Setting</string>
+           <property name="font">
+            <font>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
            </property>
-          </widget>
-         </item>
-         <item row="1" column="3">
-          <widget class="QLabel" name="label_42">
            <property name="text">
-            <string>Latch</string>
+            <string>Settings</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
            </property>
           </widget>
          </item>
@@ -1303,10 +1300,116 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="4">
+         <item row="1" column="3">
           <widget class="QPushButton" name="clrerrorsBtn">
            <property name="text">
             <string>Clear errors</string>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="2">
+          <widget class="QComboBox" name="err_fbdisconnectCb">
+           <item>
+            <property name="text">
+             <string>Disable</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Enable</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Latch</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="8" column="2">
+          <widget class="QComboBox" name="err_currentCb">
+           <item>
+            <property name="text">
+             <string>Disable</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Enable</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Latch</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="6" column="2">
+          <widget class="QComboBox" name="err_inputdisconnectCb">
+           <item>
+            <property name="text">
+             <string>Disable</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Enable</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Latch</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="5" column="2">
+          <widget class="QComboBox" name="err_inputinvalidCb">
+           <item>
+            <property name="text">
+             <string>Enable</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Latch</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="4" column="2">
+          <widget class="QComboBox" name="err_motordrvCb">
+           <item>
+            <property name="text">
+             <string>Enable</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Latch</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="3" column="2">
+          <widget class="QComboBox" name="err_powerCb">
+           <item>
+            <property name="text">
+             <string>Enable</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Latch</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="14" column="3">
+          <widget class="QPushButton" name="writeErrorsButton">
+           <property name="text">
+            <string>Write to Jrk</string>
            </property>
           </widget>
          </item>

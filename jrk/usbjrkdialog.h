@@ -86,6 +86,8 @@ private slots:
     void on_targetTodegreesLUTcb_clicked();
     void on_recordLUTButton_clicked();
 
+    void on_writeErrorsButton_clicked();
+
 protected:
     void readSettings(void);
     void writeSettings(void);
@@ -99,6 +101,11 @@ protected:
     void toggleErrors(void);
     void setResolution(void);
     double getComapssDegrees(void);
+
+    void setErrorSettings(quint16 error_enable, quint16 error_latch);
+    int  to3itemIndex(bool enable, bool latch);
+    void threeItemsToError(quint16 *error_enable, quint16 *error_latch, quint16 value, int index);
+    void twoItemsToError(quint16 *error_latch, quint16 value, int index);
 
 
 private:
