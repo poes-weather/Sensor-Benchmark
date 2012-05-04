@@ -190,12 +190,6 @@ void JrkLUTDialog::on_saveTb_clicked()
     QString inifile = QFileDialog::getSaveFileName(this, tr("Save LUT File"), "jrk/conf/", "INI files (*.ini);;All files (*.*)", 0);
 
     if(!inifile.isEmpty()) {
-#if 0
-        QFileInfo fi(inifile);
-        if(fi.suffix().toLower() != "ini") {
-            fi.
-            inifile += ".ini";
-#endif
         save(inifile);
     }
 }

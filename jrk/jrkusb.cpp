@@ -463,7 +463,7 @@ void TJrkUSB::loadLUT(void)
     QSettings reg(lutFile_, QSettings::IniFormat);
 
     QString d_str, t_str, str;
-    double  d;
+    double  d, dmax = -999, dmin = 999;
     int     t, i = 0;
 
     reg.beginGroup("JrkTargetToDegrees");
@@ -487,6 +487,11 @@ void TJrkUSB::loadLUT(void)
         if(t < 0 || t > 4095 || d < 0 || d > 360)
             break;
 
+        if(d < dmin)
+            dmin = d;
+        if(d > dmax)
+            dmax = d;
+
         jrklut.push_back(new JrkLUT(t, d));
     }
 
@@ -494,4 +499,8 @@ void TJrkUSB::loadLUT(void)
 
     if(jrklut.size() == 0)
         setFlag(JRK_USE_LUT, false);
+    else {
+        min_deg = dmin;
+        max_deg = dmax;
+    }
 }

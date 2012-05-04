@@ -255,15 +255,15 @@ void USBJrkDialog::onJrkReadWrite(void)
     }
 
     if(wFlags & WF_CALIB_MIN_FB) {
-        ui->feedbackMin->setValue(jrkusb->vars.scaledFeedback);
-        ui->feedbackDisconnectMin->setValue(jrkusb->vars.scaledFeedback / 2);
+        ui->feedbackMin->setValue(jrkusb->vars.feedback);
+        ui->feedbackDisconnectMin->setValue(jrkusb->vars.feedback - 20);
 
         wFlags &= ~WF_CALIB_MIN_FB;
     }
 
     if(wFlags & WF_CALIB_MAX_FB) {
-        ui->feedbackMax->setValue(jrkusb->vars.scaledFeedback);
-        ui->feedbackDisconnectMax->setValue(jrkusb->vars.scaledFeedback + (4095 - jrkusb->vars.scaledFeedback) / 2);
+        ui->feedbackMax->setValue(jrkusb->vars.feedback);
+        ui->feedbackDisconnectMax->setValue(jrkusb->vars.feedback + 20); // (4095 - jrkusb->vars.scaledFeedback) / 2);
 
         wFlags &= ~WF_CALIB_MAX_FB;
     }
@@ -1076,10 +1076,11 @@ void USBJrkDialog::on_recordLUTButton_clicked()
 
         ui->recordLUTButton->setText("Record");
 
+        ui->mindegSb->setValue(jrkusb->minDegrees());
+        ui->maxdegSb->setValue(jrkusb->maxDegrees());
+
         return;
     }
-
-
 
     if(!jrk || !compass || !compass->isOpen()) {
         qDebug("FATAL Error: on_recordLUTButton_clicked.");
