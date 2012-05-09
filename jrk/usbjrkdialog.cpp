@@ -677,7 +677,11 @@ void USBJrkDialog::on_applyDegBtn_clicked()
 
     writeSettings();
 
-    jrkusb->loadLUT();
+    if(jrkusb->loadLUT()) {
+        ui->mindegSb->setValue(jrkusb->minDegrees());
+        ui->maxdegSb->setValue(jrkusb->maxDegrees());
+    }
+
     setResolution();
 
     wFlags &= ~WF_NO_UPDATE;
@@ -716,67 +720,6 @@ void USBJrkDialog::on_gotoMaxBtn_clicked()
     ui->targetSlider->setValue(4095);
 
     wFlags &= ~WF_NO_UPDATE;
-}
-
-//---------------------------------------------------------------------------
-void USBJrkDialog::on_pushButton_clicked()
-{
-#if 0
-
-    if(!jrk)
-        return;
-
-    FILE *fp;
-    jrk_variables v;
-    QString str;
-    int i;
-    double degrees, d_fb, d_deg, sfb;
-
-    fp = fopen("jrk-lut-test.txt", "w");
-    if(!fp)
-        return;
-
-    ui->pushButton->setEnabled(false);
-    ui->pushButton->setText("Recording...");
-
-    fprintf(fp, "Target\tScaled\tFeedback\tDegrees\n");
-
-    d_fb  = maxfb - minfb;
-    d_deg = maxdeg - mindeg;
-
-    i = 0;
-
-    while(i <= ui->targetSlider->maximum()) {
-        ui->targetSlider->setValue(i);
-
-        //usleep(10);
-
-        jrk->control_transfer(JRK_REQUEST_GET_TYPE, JRK_REQUEST_GET_VARIABLES, 0, 0, (char *)iobuffer, sizeof(jrk_variables_t));
-        v = *(jrk_variables *) iobuffer;
-
-        if(i != v.target)
-            continue;
-
-        i++;
-
-        sfb = v.feedback - minfb;
-        degrees = (mindeg + (d_deg / d_fb) * sfb);
-
-        fprintf(fp, "%6d\t%6d\t%8d\t%f\n",
-                v.target,
-                v.scaledFeedback,
-                v.feedback,
-                degrees);
-    }
-
-    fclose(fp);
-
-    on_stopBtn_clicked();
-
-    ui->pushButton->setEnabled(true);
-    ui->pushButton->setText("Record LUT");
-
-#endif
 }
 
 //---------------------------------------------------------------------------
@@ -1088,14 +1031,16 @@ void USBJrkDialog::on_recordLUTButton_clicked()
     }
 
     if(ui->targetSlider->value() != 0) {
-        qDebug("FATAL Error: set target slider should be at 0 (zero)!");
+        qDebug("Error: Set target slider should be at 0 (zero)!");
         return;
     }
 
-    QString inifile = QFileDialog::getSaveFileName(this, tr("Save LUT File"), "jrk/conf/", "INI files (*.ini);;All files (*.*)", 0);
+    QString inifile = QFileDialog::getSaveFileName(this, tr("Save LUT File"), jrkusb->lutFile(), "INI files (*.ini);;All files (*.*)", 0);
 
     if(inifile.isEmpty())
         return;
+
+    jrkusb->lutFile(inifile);
 
     jrkusb->setTarget(0); // power on
 

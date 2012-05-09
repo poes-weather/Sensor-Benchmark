@@ -434,7 +434,7 @@ void TJrkUSB::flushLUT(void)
 }
 
 //---------------------------------------------------------------------------
-void TJrkUSB::loadLUT(void)
+bool TJrkUSB::loadLUT(void)
 {
     bool error = true;
 
@@ -453,7 +453,7 @@ void TJrkUSB::loadLUT(void)
     if(error) {
         setFlag(JRK_USE_LUT, false);
 
-        return;
+        return false;
     }
 
     //
@@ -497,10 +497,15 @@ void TJrkUSB::loadLUT(void)
 
     reg.endGroup();
 
-    if(jrklut.size() == 0)
+    if(jrklut.size() == 0) {
         setFlag(JRK_USE_LUT, false);
+
+        return false;
+    }
     else {
         min_deg = dmin;
         max_deg = dmax;
+
+        return true;
     }
 }

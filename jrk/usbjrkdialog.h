@@ -63,7 +63,6 @@ private slots:
     void on_applyDegBtn_clicked();
     void on_gotoMinBtn_clicked();
     void on_gotoMaxBtn_clicked();
-    void on_pushButton_clicked();
     void on_gotodegBtn_clicked();
 
     void on_calibrateMinFeedbackBtn_clicked();

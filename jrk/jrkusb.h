@@ -62,7 +62,7 @@ public:
     QString serialnumber(void) { return sn_; }
     QString lutFile(void) { return lutFile_; }
     void    lutFile(QString lut) { lutFile_ = lut; }
-    void    loadLUT(void);
+    bool    loadLUT(void);
 
     void    stop(void);
     void    clearErrors(void);

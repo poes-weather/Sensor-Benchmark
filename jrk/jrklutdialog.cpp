@@ -178,7 +178,7 @@ void JrkLUTDialog::on_loadTb_clicked()
 {
     saveChanges();
 
-    QString inifile = QFileDialog::getOpenFileName(this, tr("Open LUT File"), "jrk/conf/", "INI files (*.ini);;All files (*.*)");
+    QString inifile = QFileDialog::getOpenFileName(this, tr("Open LUT File"), lutFile, "INI files (*.ini);;All files (*.*)");
 
     if(!inifile.isEmpty())
         load(inifile);
