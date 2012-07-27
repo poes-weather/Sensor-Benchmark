@@ -1,0 +1,7 @@
+Jrk potentiometer connection
+
+Different POT pin descriptions to Jrk feedback connectors
+
+CW  = V+ = 1 = AUX
+S   = S+ = 2 = FB
+CCW = V- = V = S- = 3 = GND
