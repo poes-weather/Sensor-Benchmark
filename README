@@ -54,7 +54,7 @@ SUBSYSTEM=="usb", ATTRS{idVendor}=="1ffb", ATTRS{idProduct}=="0083", GROUP:="use
 KERNEL=="ttyUSB[0-9]*", GROUP="uucp", MODE="0666"
 KERNEL=="ttyS[0-9]*", GROUP="uucp", MODE="0666"
 KERNEL=="ttyACM[0-9]*", GROUP="uucp", MODE="0666"
-KERNEL=="i2c-[0-9]*", GROUP="i2c", MODE="0666"
+KERNEL=="i2c-[0-255]*", GROUP="i2c", MODE="0666"
   
 ===========================================
 Use i2c-dev to access all adapter registers
@@ -68,7 +68,20 @@ ls /dev -> should now show a list of all /dev/i2c-0...255 devices
 
 add to last in file /etc/rc.d/rc.local 
 /sbin/modprobe i2c-dev
-so it will detect all i2c-N ports
+
+Fedora 17
+$ su -
+$ gedit /etc/sysconfig/modules/i2c-dev.modules
+
+Add lines:
+
+#!/bin/bash
+lsmod | grep -q i2c-dev || /sbin/modprobe i2c-dev >/dev/null 2>&1
+
+Save and exit. Make it execuable
+$ chmod +x /etc/sysconfig/modules/i2c-dev.modules
+reboot
+
 
 =============
 i2cdetect -l
