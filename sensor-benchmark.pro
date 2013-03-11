@@ -70,7 +70,7 @@ INCLUDEPATH += gauge \
     oceanserver \
     qbox
 
-#DEFINES += DEBUG_GPS
+DEFINES += DEBUG_GPS
 
 DEFINES += SENSOR_BENCHMARK
 CONFIG += qwt
@@ -82,7 +82,7 @@ unix {
    INCLUDEPATH += \
                 /usr/include \
                 /usr/local/qwt-6.0.2-svn/include
-   LIBS += -lusb
+   LIBS += -lusb -lqwt
 }
 
 win32 {

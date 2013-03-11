@@ -5,3 +5,13 @@ Different POT pin descriptions to Jrk feedback connectors
 CW  = V+ = 1 = AUX
 S   = S+ = 2 = FB
 CCW = V- = V = S- = 3 = GND
+
+===============================================
+3-turn VISHAY PRECISION POTENTIOMETER 1227 MEX
+MOD 533, RES +- 5%, LIN +- 0.25%
+
+1 = AUX (yellow or green)
+2 = FB (green or yellow)
+3 = GND (brown)
+
+Feedback counts 0...3840 ie 1280 counts/revolution

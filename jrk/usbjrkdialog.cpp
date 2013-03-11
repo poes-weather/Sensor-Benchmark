@@ -374,6 +374,9 @@ void USBJrkDialog::readParameters(void)
     // 1 byte unsigned value, 0-8 - averages together 4 * 2^x samples
     u8 = jrk->control_read_u8(JRK_REQUEST_GET_TYPE, JRK_REQUEST_GET_PARAMETER, 0, JRK_PARAMETER_FEEDBACK_ANALOG_SAMPLES_EXPONENT);
     ui->adcSamplesCb->setCurrentIndex(u8);
+
+    qDebug("adc samples: %d", u8);
+
     u8 = jrk->control_read_u8(JRK_REQUEST_GET_TYPE, JRK_REQUEST_GET_PARAMETER, 0, JRK_PARAMETER_FEEDBACK_INVERT);
     ui->feedbackInvertedCb->setChecked(u8 & 1 ? true:false);
     u16 = jrk->control_read_u16(JRK_REQUEST_GET_TYPE, JRK_REQUEST_GET_PARAMETER, 0, JRK_PARAMETER_FEEDBACK_MINIMUM);
@@ -594,6 +597,8 @@ void USBJrkDialog::on_applyFeedbackBtn_clicked()
     wFlags |= WF_NO_UPDATE;
 
     set_parameter_u8(JRK_PARAMETER_FEEDBACK_INVERT, ui->feedbackInvertedCb->isChecked() ? 1:0);
+    set_parameter_u8(JRK_PARAMETER_FEEDBACK_ANALOG_SAMPLES_EXPONENT, ui->adcSamplesCb->currentIndex());
+
     set_parameter_u16(JRK_PARAMETER_FEEDBACK_MINIMUM, ui->feedbackMin->value());
     set_parameter_u16(JRK_PARAMETER_FEEDBACK_MAXIMUM, ui->feedbackMax->value());
     set_parameter_u16(JRK_PARAMETER_FEEDBACK_DISCONNECT_MINIMUM, ui->feedbackDisconnectMin->value());
